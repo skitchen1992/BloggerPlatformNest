@@ -17,6 +17,10 @@ import { BlogCreateDto } from './dto/input/create-blog.input.dto';
 import { BlogsService } from '../application/blogs.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { BlogUpdateDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
+import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
+import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import { PostForBlogCreateDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
+import { PostsService } from '@features/posts/application/posts.service';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -25,6 +29,8 @@ export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly postsService: PostsService,
   ) {}
 
   @Get()
@@ -43,6 +49,31 @@ export class BlogsController {
     );
 
     return await this.blogsQueryRepository.getById(createdBlogId);
+  }
+
+  @Get(':blogId/posts')
+  async getPostsForBlog(
+    @Param('blogId') blogId: string,
+    @Query() query: PostQuery,
+  ) {
+    return await this.postsQueryRepository.getAll(query, { blogId });
+  }
+
+  @Post(':blogId/posts')
+  async createPostForBlog(
+    @Param('blogId') blogId: string,
+    @Body() input: PostForBlogCreateDto,
+  ) {
+    const { title, shortDescription, content } = input;
+
+    const createdPostId: string = await this.postsService.create(
+      title,
+      shortDescription,
+      content,
+      blogId,
+    );
+
+    return await this.postsQueryRepository.getById(createdPostId);
   }
 
   @Get(':id')

@@ -2,6 +2,7 @@ import { SortOrder } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { BlogsQuery } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
+import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 
 type Filters =
   | string
@@ -65,7 +66,7 @@ export class Pagination {
     return this.buildQuery(queryParams, { searchNameTerm: 'name' });
   }
 
-  public getPosts(queryParams: any, params?: { blogId?: string }) {
+  public getPosts(queryParams: PostQuery, params?: { blogId?: string }) {
     return this.buildQuery(queryParams, {}, params);
   }
 
