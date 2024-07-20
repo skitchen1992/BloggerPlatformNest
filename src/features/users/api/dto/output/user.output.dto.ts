@@ -10,12 +10,12 @@ export class UserOutputDto {
 // MAPPERS
 
 export const UserOutputDtoMapper = (user: UserDocument): UserOutputDto => {
-  const outputModel = new UserOutputDto();
+  const outputDto = new UserOutputDto();
 
-  outputModel.id = user._id.toString();
-  outputModel.login = user.login;
-  outputModel.email = user.email;
-  outputModel.createdAt = user.createdAt.toISOString();
+  outputDto.id = user._id.toString();
+  outputDto.login = user.login;
+  outputDto.email = user.email;
+  outputDto.createdAt = user.createdAt.toISOString();
 
-  return outputModel;
+  return outputDto;
 };

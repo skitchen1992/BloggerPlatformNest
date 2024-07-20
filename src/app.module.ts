@@ -14,6 +14,11 @@ import { UsersController } from '@features/users/api/users.controller';
 import { LoggerMiddleware } from '@infrastructure/middlewares/logger.middleware';
 import { HashBuilder } from '@utils/hash.builder';
 import { Pagination } from '@base/models/pagination.base.model';
+import { BlogsController } from '@features/blogs/api/blogs.controller';
+import { BlogsService } from '@features/blogs/application/blogs.service';
+import { BlogsRepository } from '@features/blogs/infrastructure/blogs.repository';
+import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
+import { Blog, BlogSchema } from '@features/blogs/domain/blog.entity';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -23,35 +28,26 @@ const usersProviders: Provider[] = [
   Pagination,
 ];
 
+const blogsProviders: Provider[] = [
+  BlogsRepository,
+  BlogsService,
+  BlogsQueryRepository,
+  Pagination,
+];
+
 @Module({
   // Регистрация модулей
   imports: [
     MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Blog.name, schema: BlogSchema },
+    ]),
   ],
   // Регистрация провайдеров
-  providers: [
-    ...usersProviders,
-    /* {
-         provide: UsersService,
-         useClass: UsersService,
-     },*/
-    /*{
-        provide: UsersService,
-        useValue: {method: () => {}},
-
-    },*/
-    // Регистрация с помощью useFactory (необходимы зависимости из ioc, подбор провайдера, ...)
-    /* {
-         provide: UsersService,
-         useFactory: (repo: UsersRepository) => {
-             return new UsersService(repo);
-         },
-         inject: [UsersRepository]
-     }*/
-  ],
+  providers: [...usersProviders, ...blogsProviders],
   // Регистрация контроллеров
-  controllers: [UsersController],
+  controllers: [UsersController, BlogsController],
 })
 export class AppModule implements NestModule {
   // https://docs.nestjs.com/middleware#applying-middleware

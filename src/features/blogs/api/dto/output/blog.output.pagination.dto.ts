@@ -1,16 +1,16 @@
-import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
 import { getPageCount } from '@utils/pagination';
 import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { BlogOutputDto } from '@features/blogs/api/dto/output/blog.output.dto';
 
-export class UsersQuery {
+export class BlogsQuery {
   /**
-   * Search term for user Login: Login should contain this term in any position
+   * Search term for blog Name: Name should contain this term in any position
    * Default value : null
    */
   @IsOptional()
   @IsString()
-  searchLoginTerm?: string;
+  searchNameTerm?: string;
   /**
    * Default value : createdAt
    */
@@ -43,17 +43,10 @@ export class UsersQuery {
   @IsInt()
   @Type(() => Number)
   pageSize?: string;
-  /**
-   * Search term for user Email: Email should contains this term in any position
-   * Default value : null
-   */
-  @IsOptional()
-  @IsString()
-  searchEmailTerm?: string;
 }
 
-export class UserOutputPaginationDto {
-  items: UserOutputDto[];
+export class BlogOutputPaginationDto {
+  items: BlogOutputDto[];
   totalCount: number;
   pageSize: number;
   page: number;
@@ -62,15 +55,15 @@ export class UserOutputPaginationDto {
 
 // MAPPERS
 
-export const UserOutputPaginationDtoMapper = (
-  users: UserOutputDto[],
+export const BlogOutputPaginationDtoMapper = (
+  blogs: BlogOutputDto[],
   totalCount: number,
   pageSize: number,
   page: number,
-): UserOutputPaginationDto => {
-  const outputDto = new UserOutputPaginationDto();
+): BlogOutputPaginationDto => {
+  const outputDto = new BlogOutputPaginationDto();
 
-  outputDto.items = users;
+  outputDto.items = blogs;
   outputDto.totalCount = totalCount;
   outputDto.pageSize = pageSize;
   outputDto.page = page;
