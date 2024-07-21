@@ -17,6 +17,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@base/*": ["src/base/*"],
+      "@features/*": ["src/features/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@settings/*": ["src/settings/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   }
 }
