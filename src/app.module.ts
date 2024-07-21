@@ -32,6 +32,7 @@ import { CommentsRepository } from '@features/comments/infrastructure/comments.r
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsController } from '@features/comments/api/comments.controller';
+import { TestingController } from '@features/testing/api/testing.controller';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -91,6 +92,7 @@ const commentsProviders: Provider[] = [
     BlogsController,
     PostsController,
     CommentsController,
+    TestingController,
   ],
 })
 export class AppModule implements NestModule {
