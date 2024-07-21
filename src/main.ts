@@ -11,7 +11,6 @@ async function bootstrap() {
   await app.listen(appSettings.api.APP_PORT, () => {
     console.log('App starting listen port: ', appSettings.api.APP_PORT);
     console.log('ENV: ', appSettings.env.getEnv());
-    console.log('TEST: ');
   });
 }
 
