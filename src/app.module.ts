@@ -24,6 +24,14 @@ import { PostsController } from '@features/posts/api/posts.controller';
 import { PostsRepository } from '@features/posts/infrastructure/posts.repository';
 import { PostsService } from '@features/posts/application/posts.service';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
+import {
+  Comment,
+  CommentSchema,
+} from '@features/comments/domain/comment.entity';
+import { CommentsRepository } from '@features/comments/infrastructure/comments.repository';
+import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
+import { CommentsService } from '@features/comments/application/comments.service';
+import { CommentsController } from '@features/comments/api/comments.controller';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -47,6 +55,15 @@ const postsProviders: Provider[] = [
   PostsService,
   PostsQueryRepository,
   BlogsQueryRepository,
+  CommentsQueryRepository,
+  CommentsService,
+  Pagination,
+];
+
+const commentsProviders: Provider[] = [
+  CommentsRepository,
+  CommentsQueryRepository,
+  CommentsService,
   Pagination,
 ];
 
@@ -58,12 +75,23 @@ const postsProviders: Provider[] = [
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
+      { name: Comment.name, schema: CommentSchema },
     ]),
   ],
   // Регистрация провайдеров
-  providers: [...usersProviders, ...blogsProviders, ...postsProviders],
+  providers: [
+    ...usersProviders,
+    ...blogsProviders,
+    ...postsProviders,
+    ...commentsProviders,
+  ],
   // Регистрация контроллеров
-  controllers: [UsersController, BlogsController, PostsController],
+  controllers: [
+    UsersController,
+    BlogsController,
+    PostsController,
+    CommentsController,
+  ],
 })
 export class AppModule implements NestModule {
   // https://docs.nestjs.com/middleware#applying-middleware

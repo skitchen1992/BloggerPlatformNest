@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { BlogsQuery } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import { CommentQuery } from '@features/comments/api/dto/output/comment.output.pagination.dto';
 
 type Filters =
   | string
@@ -70,7 +71,7 @@ export class Pagination {
     return this.buildQuery(queryParams, {}, params);
   }
 
-  public getComments(queryParams: any, params?: { postId: string }) {
+  public getComments(queryParams: CommentQuery, params?: { postId: string }) {
     return this.buildQuery(queryParams, {}, params);
   }
 
