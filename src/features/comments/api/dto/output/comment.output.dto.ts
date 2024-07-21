@@ -1,5 +1,15 @@
 import { CommentDocument } from '../../../domain/comment.entity';
 
+export enum LikeStatus {
+  LIKE = 'Like',
+  DISLIKE = 'Dislike',
+  NONE = 'None',
+}
+export interface ILikesInfo {
+  likesCount: number;
+  dislikesCount: number;
+  myStatus: LikeStatus;
+}
 export class CommentOutputDto {
   id: string;
   content: string;
@@ -9,6 +19,7 @@ export class CommentOutputDto {
   };
   postId: string;
   createdAt: string;
+  likesInfo: ILikesInfo;
 }
 
 // MAPPERS
@@ -25,6 +36,11 @@ export const CommentOutputDtoMapper = (
     userLogin: comment.commentatorInfo.userLogin,
   };
   outputDto.createdAt = comment.createdAt.toISOString();
+  outputDto.likesInfo = {
+    likesCount: 0,
+    dislikesCount: 0,
+    myStatus: LikeStatus.NONE,
+  };
 
   return outputDto;
 };

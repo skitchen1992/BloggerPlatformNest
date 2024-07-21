@@ -56,6 +56,11 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() query: PostQuery,
   ) {
+    const blog = await this.blogsQueryRepository.getById(blogId);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
+    }
     return await this.postsQueryRepository.getAll(query, { blogId });
   }
 
@@ -64,6 +69,11 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Body() input: PostForBlogCreateDto,
   ) {
+    const blog = await this.blogsQueryRepository.getById(blogId);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
+    }
     const { title, shortDescription, content } = input;
 
     const createdPostId: string = await this.postsService.create(

@@ -39,6 +39,11 @@ export class PostsController {
     @Body() input: CommentCreateDto,
     @Param('postId') postId: string,
   ) {
+    const post = await this.postsQueryRepository.getById(postId);
+
+    if (!post) {
+      throw new NotFoundException(`Post with id ${postId} not found`);
+    }
     const { content } = input;
 
     const createdCommentId: string = await this.commentsService.create(
@@ -55,6 +60,11 @@ export class PostsController {
     @Query() query: CommentQuery,
     @Param('postId') postId: string,
   ) {
+    const post = await this.postsQueryRepository.getById(postId);
+
+    if (!post) {
+      throw new NotFoundException(`Post with id ${postId} not found`);
+    }
     return await this.commentsQueryRepository.getAll(query, { postId });
   }
 
