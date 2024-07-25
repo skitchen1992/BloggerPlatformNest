@@ -35,6 +35,10 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
             new InterlayerNoticeExtension(e.message, e.key),
           );
         });
+      } else if (typeof responseBody === 'object') {
+        errorsResponse.errorsMessages.push(
+          new InterlayerNoticeExtension(responseBody.message, responseBody.key),
+        );
       } else {
         errorsResponse.errorsMessages.push(responseBody.message);
       }

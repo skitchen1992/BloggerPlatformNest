@@ -8,7 +8,7 @@ import {
 import type { Duration } from 'date-fns/types';
 
 export function add(date: Date | number | string, duration: Duration) {
-  return addFns(date, duration).toISOString();
+  return addFns(date, duration);
 }
 
 export function subtractSeconds(date: Date | number | string, amount: number) {

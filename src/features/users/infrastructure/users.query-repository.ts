@@ -63,6 +63,37 @@ export class UsersQueryRepository {
     );
   }
 
+  public async isUserExist(login: string, email: string): Promise<boolean> {
+    const user = await this.userModel
+      .findOne({
+        $or: [{ login }, { email }],
+      })
+      .lean();
+
+    return !!user;
+  }
+
+  public async findUserByLoginOrEmail(
+    login: string,
+    email: string,
+  ): Promise<{
+    user: User | null;
+    foundBy: string | null;
+  }> {
+    const user = await this.userModel
+      .findOne({
+        $or: [{ login }, { email }],
+      })
+      .lean();
+
+    if (!user) {
+      return { user: null, foundBy: null };
+    }
+
+    const foundBy = user.login === login ? 'login' : 'email';
+    return { user, foundBy };
+  }
+
   public async isLoginExist(login: string): Promise<boolean> {
     const user = await this.userModel.findOne({ login: login });
     return !user;

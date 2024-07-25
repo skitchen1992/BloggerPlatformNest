@@ -35,6 +35,9 @@ import { CommentsController } from '@features/comments/api/comments.controller';
 import { TestingController } from '@features/testing/api/testing.controller';
 import { IsLoginExistConstrain } from '@infrastructure/decorators/validate/is-login-exist.decorator';
 import { IsEmailExistConstrain } from '@infrastructure/decorators/validate/is-email-exist.decorator';
+import { AuthController } from '@features/auth/api/authController';
+import { AuthService } from '@features/auth/application/auth.service';
+import { NodeMailer } from '@infrastructure/servises/nodemailer.service';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -70,6 +73,8 @@ const commentsProviders: Provider[] = [
   Pagination,
 ];
 
+const authProviders: Provider[] = [AuthService, NodeMailer];
+
 @Module({
   // Регистрация модулей
   imports: [
@@ -87,6 +92,7 @@ const commentsProviders: Provider[] = [
     ...blogsProviders,
     ...postsProviders,
     ...commentsProviders,
+    ...authProviders,
     IsLoginExistConstrain,
     IsEmailExistConstrain,
   ],
@@ -97,6 +103,7 @@ const commentsProviders: Provider[] = [
     PostsController,
     CommentsController,
     TestingController,
+    AuthController,
   ],
 })
 export class AppModule implements NestModule {
