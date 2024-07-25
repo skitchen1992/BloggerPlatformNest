@@ -1,7 +1,7 @@
 import { Trim } from '@infrastructure/decorators/transform/trim';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class CommentCreateDto {
+export class CreateCommentDto {
   @Trim()
   @IsString({ message: 'Content must be a string' })
   @Length(20, 300, {

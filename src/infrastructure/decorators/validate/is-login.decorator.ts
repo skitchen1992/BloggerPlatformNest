@@ -2,7 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { Trim } from '@infrastructure/decorators/transform/trim';
 
-export const IsLogin = () =>
+export const IsLoginDecorator = () =>
   applyDecorators(
     Trim(),
     IsString({ message: 'Login must be a string' }),

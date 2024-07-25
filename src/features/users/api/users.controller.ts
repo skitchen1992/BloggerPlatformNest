@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
-import { UserCreateModel } from './dto/input/create-user.input.dto';
+import { CreateUserDto } from './dto/input/create-user.input.dto';
 import { UsersService } from '../application/users.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 
@@ -33,7 +33,7 @@ export class UsersController {
   }
 
   @Post()
-  async create(@Body() input: UserCreateModel) {
+  async create(@Body() input: CreateUserDto) {
     const { login, password, email } = input;
 
     const createdUserId: string = await this.usersService.create(

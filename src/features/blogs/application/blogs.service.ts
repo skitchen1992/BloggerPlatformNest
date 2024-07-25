@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from '@features/blogs/infrastructure/blogs.repository';
 import { Blog } from '@features/blogs/domain/blog.entity';
-import { BlogUpdateDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
+import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
 
 // Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()
@@ -30,7 +30,7 @@ export class BlogsService {
     description: string,
     websiteUrl: string,
   ): Promise<boolean> {
-    const data: BlogUpdateDto = {
+    const data: UpdateBlogDto = {
       name,
       description,
       websiteUrl,

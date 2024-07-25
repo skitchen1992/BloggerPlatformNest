@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostModelType } from '../domain/post.entity';
-import { PostUpdateDto } from '@features/posts/api/dto/input/update-post.input.dto';
+import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -13,7 +13,7 @@ export class PostsRepository {
     return insertResult[0].id;
   }
 
-  public async update(id: string, data: PostUpdateDto): Promise<boolean> {
+  public async update(id: string, data: UpdatePostDto): Promise<boolean> {
     const updateResult = await this.postModel.updateOne({ _id: id }, data);
 
     return updateResult.modifiedCount === 1;

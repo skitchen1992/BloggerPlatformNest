@@ -13,13 +13,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
-import { BlogCreateDto } from './dto/input/create-blog.input.dto';
+import { CreateBlogDto } from './dto/input/create-blog.input.dto';
 import { BlogsService } from '../application/blogs.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
-import { BlogUpdateDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
+import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
-import { PostForBlogCreateDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
+import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
 import { PostsService } from '@features/posts/application/posts.service';
 
 // Tag для swagger
@@ -39,7 +39,7 @@ export class BlogsController {
   }
 
   @Post()
-  async create(@Body() input: BlogCreateDto) {
+  async create(@Body() input: CreateBlogDto) {
     const { name, description, websiteUrl } = input;
 
     const createdBlogId: string = await this.blogsService.create(
@@ -67,7 +67,7 @@ export class BlogsController {
   @Post(':blogId/posts')
   async createPostForBlog(
     @Param('blogId') blogId: string,
-    @Body() input: PostForBlogCreateDto,
+    @Body() input: CreatePostForBlogDto,
   ) {
     const blog = await this.blogsQueryRepository.getById(blogId);
 
@@ -100,7 +100,7 @@ export class BlogsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: BlogUpdateDto) {
+  async update(@Param('id') id: string, @Body() input: UpdateBlogDto) {
     const { name, description, websiteUrl } = input;
 
     const isUpdated: boolean = await this.blogsService.update(

@@ -29,6 +29,12 @@ export class BlogsQueryRepository {
     return BlogOutputDtoMapper(blog);
   }
 
+  public async isExist(userId: string): Promise<boolean> {
+    const blog = await this.blogModel.findById(userId).lean();
+
+    return !!blog;
+  }
+
   public async getAll(query: BlogsQuery): Promise<BlogOutputPaginationDto> {
     const pagination = this.pagination.getBlogs(query);
 

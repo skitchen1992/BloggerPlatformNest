@@ -33,6 +33,8 @@ import { CommentsQueryRepository } from '@features/comments/infrastructure/comme
 import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsController } from '@features/comments/api/comments.controller';
 import { TestingController } from '@features/testing/api/testing.controller';
+import { IsLoginExistConstrain } from '@infrastructure/decorators/validate/is-login-exist.decorator';
+import { IsEmailExistConstrain } from '@infrastructure/decorators/validate/is-email-exist.decorator';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -85,6 +87,8 @@ const commentsProviders: Provider[] = [
     ...blogsProviders,
     ...postsProviders,
     ...commentsProviders,
+    IsLoginExistConstrain,
+    IsEmailExistConstrain,
   ],
   // Регистрация контроллеров
   controllers: [

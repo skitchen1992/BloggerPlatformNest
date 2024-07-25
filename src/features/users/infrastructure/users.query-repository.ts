@@ -62,4 +62,15 @@ export class UsersQueryRepository {
       pagination.page,
     );
   }
+
+  public async isLoginExist(login: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ login: login });
+    return !user;
+  }
+
+  public async isEmailExist(email: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ email: email });
+
+    return !user;
+  }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentModelType } from '../domain/comment.entity';
-import { CommentUpdateDto } from '@features/comments/api/dto/input/update-comment.input.dto';
+import { UpdateCommentDto } from '@features/comments/api/dto/input/update-comment.input.dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -15,7 +15,7 @@ export class CommentsRepository {
     return insertResult[0].id;
   }
 
-  public async update(id: string, data: CommentUpdateDto): Promise<boolean> {
+  public async update(id: string, data: UpdateCommentDto): Promise<boolean> {
     const updateResult = await this.commentsModel.updateOne({ _id: id }, data);
 
     return updateResult.modifiedCount === 1;

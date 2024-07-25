@@ -7,12 +7,19 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { appSettings } from './app-settings';
 import { LoggerMiddlewareFunc } from '@infrastructure/middlewares/logger.middleware';
 import { HttpExceptionFilter } from '@infrastructure/exception-filters/http-exception-filter';
+import { useContainer } from 'class-validator';
+import { AppModule } from '../app.module';
 
 // Префикс нашего приложения (http://site.com/api)
 const APP_PREFIX = '/api';
 
 // Используем данную функцию в main.ts и в e2e тестах
 export const applyAppSettings = (app: INestApplication) => {
+  // Для внедрения зависимостей в validator constrain
+  // { fallbackOnErrors: true } требуется, поскольку Nest генерирует
+  //исключения когда DI не имеет необходимого класс
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   // Применение глобальных Interceptors
   // app.useGlobalInterceptors()
 
