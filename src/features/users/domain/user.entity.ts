@@ -6,6 +6,12 @@ interface IEmailConfirmation {
   confirmationCode: string;
   expirationDate: Date;
 }
+
+export interface RecoveryCode {
+  code: string;
+  isUsed: boolean;
+}
+
 @Schema()
 export class User {
   @Prop({ type: String, require: true, minlength: 3, maxlength: 10 })
@@ -29,6 +35,15 @@ export class User {
     required: false,
   })
   emailConfirmation?: IEmailConfirmation;
+
+  @Prop({
+    type: {
+      code: { type: String, required: true },
+      isUsed: { type: Boolean, required: true },
+    },
+    required: false,
+  })
+  recoveryCode?: RecoveryCode;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

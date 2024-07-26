@@ -4,7 +4,7 @@ import { Trim } from '../transform/trim';
 
 // Объединение декораторов
 // https://docs.nestjs.com/custom-decorators#decorator-composition
-export const isUserEmail = () =>
+export const isEmail = () =>
   applyDecorators(
     Trim(),
     IsEmail({}, { message: 'Email must be a valid email address' }),

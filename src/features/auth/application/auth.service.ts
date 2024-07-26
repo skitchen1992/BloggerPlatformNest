@@ -8,10 +8,18 @@ import { User } from '@features/users/domain/user.entity';
 import { HashBuilder } from '@utils/hash-builder';
 import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
-import { add } from '@utils/dates';
+import {
+  add,
+  fromUnixTimeToISO,
+  getCurrentDate,
+  isExpiredDate,
+} from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
 import { appSettings } from '@settings/app-settings';
+import { RecoveryCodeDtoMapper } from '@features/auth/api/dto/recovery-code.dto';
+import { JwtPayload } from 'jsonwebtoken';
+import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -83,9 +91,71 @@ export class AuthService {
     };
   }
 
-  getAccessToken(userId: string) {
+  async recoveryPassword(email: string) {
+    const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
+      email,
+      email,
+    );
+
+    if (!user) {
+      const recoveryAccessToken = this.getAccessToken(null);
+      await this.sendRecoveryPassEmail(email, recoveryAccessToken);
+      return;
+    }
+
+    const userId = user._id.toString();
+
+    const recoveryAccessToken = this.getAccessToken(userId);
+
+    await this.usersRepository.update(
+      userId,
+      RecoveryCodeDtoMapper(recoveryAccessToken),
+    );
+
+    await this.sendRecoveryPassEmail(email, recoveryAccessToken);
+  }
+
+  async newPassword(newPassword: string, recoveryCode: string) {
+    const { userId, exp } =
+      (this.jwtService.verifyToken(recoveryCode) as JwtPayload) ?? {};
+
+    if (!userId || !exp) {
+      throw new BadRequestException({
+        message: 'Recovery code not correct',
+        key: 'recoveryCode',
+      });
+    }
+
+    if (isExpiredDate(fromUnixTimeToISO(exp), getCurrentDate())) {
+      throw new BadRequestException({
+        message: 'Recovery code not correct',
+        key: 'recoveryCode',
+      });
+    }
+
+    const user = await this.usersRepository.get(userId);
+
+    if (
+      user?.recoveryCode?.isUsed ||
+      user?.recoveryCode?.code !== recoveryCode
+    ) {
+      throw new BadRequestException({
+        message: 'Recovery code not correct',
+        key: 'recoveryCode',
+      });
+    }
+
+    const passwordHash = await this.hashBuilder.hash(newPassword);
+
+    await this.usersRepository.update(
+      userId,
+      NewPasswordDtoMapper(passwordHash),
+    );
+  }
+
+  getAccessToken(userId: string | null) {
     return this.jwtService.generateToken(
-      { userId },
+      { userId: userId },
       { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
     );
   }

@@ -2,7 +2,7 @@ import { IsPasswordDecorator } from '@infrastructure/decorators/validate/is-pass
 import { Trim } from '@infrastructure/decorators/transform/trim';
 import { IsNotEmpty } from 'class-validator';
 
-export class LoginUserDto {
+export class LoginDto {
   @Trim()
   @IsNotEmpty({ message: 'LoginOrEmail is required' })
   loginOrEmail: string;
