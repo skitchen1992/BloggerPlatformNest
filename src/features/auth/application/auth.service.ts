@@ -1,20 +1,26 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { User } from '@features/users/domain/user.entity';
-import { HashBuilder } from '@utils/hash.builder';
+import { HashBuilder } from '@utils/hash-builder';
 import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
-import { NodeMailer } from '@infrastructure/servises/nodemailer.service';
+import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
 import { add } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
+import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
+import { appSettings } from '@settings/app-settings';
 
-// Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly hashBuilder: HashBuilder,
-    protected nodeMailer: NodeMailer,
+    protected readonly nodeMailer: NodeMailer,
+    protected readonly jwtService: JwtService,
   ) {}
 
   async registration(
@@ -51,6 +57,37 @@ export class AuthService {
     await this.usersRepository.create(newUser);
 
     await this.sendRegisterEmail(email, confirmationCode);
+  }
+
+  async login(loginOrEmail: string, password: string) {
+    const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
+      loginOrEmail,
+      loginOrEmail,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const isCorrectPass = await this.hashBuilder.compare(
+      password,
+      user.password,
+    );
+
+    if (!isCorrectPass) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      accessToken: this.getAccessToken(user._id.toString()),
+    };
+  }
+
+  getAccessToken(userId: string) {
+    return this.jwtService.generateToken(
+      { userId },
+      { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
+    );
   }
 
   async sendRegisterEmail(to: string, confirmationCode: string) {

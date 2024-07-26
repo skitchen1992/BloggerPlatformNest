@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { User } from '@features/users/domain/user.entity';
-import { HashBuilder } from '@utils/hash.builder';
+import { HashBuilder } from '@utils/hash-builder';
 
 // Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()

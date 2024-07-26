@@ -1,7 +1,8 @@
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
 import { AuthService } from '../application/auth.service';
+import { LoginUserDto } from '@features/auth/api/dto/input/login-user.input.dto';
 
 // Tag для swagger
 @ApiTags('Auth')
@@ -16,5 +17,13 @@ export class AuthController {
     const { login, password, email } = input;
 
     await this.authService.registration(login, password, email);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() input: LoginUserDto) {
+    const { loginOrEmail, password } = input;
+
+    return await this.authService.login(loginOrEmail, password);
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserModelType } from '../domain/user.entity';
+import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   UserOutputDto,
@@ -77,7 +77,7 @@ export class UsersQueryRepository {
     login: string,
     email: string,
   ): Promise<{
-    user: User | null;
+    user: UserDocument | null;
     foundBy: string | null;
   }> {
     const user = await this.userModel
@@ -95,12 +95,12 @@ export class UsersQueryRepository {
   }
 
   public async isLoginExist(login: string): Promise<boolean> {
-    const user = await this.userModel.findOne({ login: login });
+    const user = await this.userModel.findOne({ login: login }).lean();
     return !user;
   }
 
   public async isEmailExist(email: string): Promise<boolean> {
-    const user = await this.userModel.findOne({ email: email });
+    const user = await this.userModel.findOne({ email: email }).lean();
 
     return !user;
   }
