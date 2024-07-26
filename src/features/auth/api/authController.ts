@@ -34,7 +34,7 @@ export class AuthController {
   async passwordRecovery(@Body() input: PasswordRecoveryDto) {
     const { email } = input;
 
-    return await this.authService.recoveryPassword(email);
+    await this.authService.recoveryPassword(email);
   }
 
   @Post('new-password')
@@ -42,6 +42,6 @@ export class AuthController {
   async newPassword(@Body() input: NewPasswordDto) {
     const { newPassword, recoveryCode } = input;
 
-    return await this.authService.newPassword(newPassword, recoveryCode);
+    await this.authService.newPassword(newPassword, recoveryCode);
   }
 }

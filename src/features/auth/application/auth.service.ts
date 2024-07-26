@@ -20,6 +20,10 @@ import { appSettings } from '@settings/app-settings';
 import { RecoveryCodeDtoMapper } from '@features/auth/api/dto/recovery-code.dto';
 import { JwtPayload } from 'jsonwebtoken';
 import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';
+import {
+  LoginOutputDto,
+  LoginOutputDtoMapper,
+} from '@features/auth/api/dto/output/login.output.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +35,7 @@ export class AuthService {
     protected readonly jwtService: JwtService,
   ) {}
 
-  async registration(
+  public async registration(
     login: string,
     password: string,
     email: string,
@@ -67,7 +71,10 @@ export class AuthService {
     await this.sendRegisterEmail(email, confirmationCode);
   }
 
-  async login(loginOrEmail: string, password: string) {
+  public async login(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<LoginOutputDto> {
     const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
       loginOrEmail,
       loginOrEmail,
@@ -86,12 +93,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return {
-      accessToken: this.getAccessToken(user._id.toString()),
-    };
+    return LoginOutputDtoMapper(this.getAccessToken(user._id.toString()));
   }
 
-  async recoveryPassword(email: string) {
+  public async recoveryPassword(email: string): Promise<void> {
     const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
       email,
       email,
@@ -115,7 +120,10 @@ export class AuthService {
     await this.sendRecoveryPassEmail(email, recoveryAccessToken);
   }
 
-  async newPassword(newPassword: string, recoveryCode: string) {
+  public async newPassword(
+    newPassword: string,
+    recoveryCode: string,
+  ): Promise<void> {
     const { userId, exp } =
       (this.jwtService.verifyToken(recoveryCode) as JwtPayload) ?? {};
 
@@ -153,14 +161,14 @@ export class AuthService {
     );
   }
 
-  getAccessToken(userId: string | null) {
+  private getAccessToken(userId: string | null) {
     return this.jwtService.generateToken(
       { userId: userId },
       { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
     );
   }
 
-  async sendRegisterEmail(to: string, confirmationCode: string) {
+  private async sendRegisterEmail(to: string, confirmationCode: string) {
     const link = `https://blogger-platform-bay.vercel.app/api/auth/registration-confirmation?code=${confirmationCode}`;
     const subject = 'Confirm your email address';
     const text = `Please confirm your email address by clicking the following link: link`;
@@ -169,7 +177,7 @@ export class AuthService {
     await this.nodeMailer.sendMail(to, subject, text, html);
   }
 
-  async sendRecoveryPassEmail(to: string, confirmationCode: string) {
+  private async sendRecoveryPassEmail(to: string, confirmationCode: string) {
     const link = `https://blogger-platform-bay.vercel.app/api/auth/password-recovery?recoveryCode=${confirmationCode}`;
     const subject = 'Password recovery';
     const text = `To finish password recovery please follow the link below: link`;
