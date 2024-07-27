@@ -19,7 +19,7 @@ import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/regi
 @ApiTags('Auth')
 @Controller('auth')
 // Установка guard на весь контроллер
-//@UseGuards(AuthGuard)
+//@UseGuards(BasicAuthGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

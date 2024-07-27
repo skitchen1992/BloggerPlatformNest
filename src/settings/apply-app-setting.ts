@@ -24,7 +24,7 @@ export const applyAppSettings = (app: INestApplication) => {
   // app.useGlobalInterceptors()
 
   // Применение глобальных Guards
-  //  app.useGlobalGuards(new AuthGuard());
+  //  app.useGlobalGuards(new BasicAuthGuard());
 
   // Применить middleware глобально
   app.use(LoggerMiddlewareFunc);
