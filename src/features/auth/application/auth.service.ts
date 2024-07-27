@@ -24,6 +24,7 @@ import {
   LoginOutputDto,
   LoginOutputDtoMapper,
 } from '@features/auth/api/dto/output/login.output.dto';
+import { MeOutputDtoMapper } from '@features/auth/api/dto/output/me.output.dto';
 
 @Injectable()
 export class AuthService {
@@ -203,6 +204,58 @@ export class AuthService {
       'emailConfirmation.isConfirmed',
       true,
     );
+  }
+
+  public async registrationEmailResending(email: string): Promise<void> {
+    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
+      email,
+      email,
+    );
+
+    if (!user) {
+      throw new BadRequestException({
+        message: 'Email not found',
+        key: 'email',
+      });
+    }
+
+    if (user.emailConfirmation?.isConfirmed) {
+      throw new BadRequestException({
+        message: 'Email already confirmed',
+        key: 'email',
+      });
+    }
+
+    if (
+      user.emailConfirmation?.expirationDate &&
+      isExpiredDate({
+        expirationDate: user.emailConfirmation.expirationDate.toString(),
+        currentDate: getCurrentDate(),
+      })
+    ) {
+      throw new BadRequestException({
+        message: 'Confirmation code expired',
+        key: 'code',
+      });
+    }
+
+    const confirmationCode = getUniqueId();
+
+    await this.usersQueryRepository.updateUserFieldById(
+      user._id.toString(),
+      'emailConfirmation.confirmationCode',
+      confirmationCode,
+    );
+
+    await this.sendRegisterEmail(email, confirmationCode);
+  }
+
+  public async me(): Promise<any> {
+    return MeOutputDtoMapper({
+      login: 'string',
+      email: 'strin',
+      userId: 'string',
+    });
   }
 
   private getAccessToken(userId: string | null) {

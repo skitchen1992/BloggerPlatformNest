@@ -1,11 +1,19 @@
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
 import { AuthService } from '../application/auth.service';
 import { LoginDto } from '@features/auth/api/dto/input/login.input.dto';
 import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recovery.input.dto';
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
 import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/registration-confirmation.input.dto';
+import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
 
 // Tag для swagger
 @ApiTags('Auth')
@@ -14,13 +22,6 @@ import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/regist
 //@UseGuards(AuthGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @Post('registration')
-  async registration(@Body() input: RegistrationUserDto) {
-    const { login, password, email } = input;
-
-    await this.authService.registration(login, password, email);
-  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -52,5 +53,27 @@ export class AuthController {
     const { code } = input;
 
     await this.authService.registrationConfirmation(code);
+  }
+
+  @Post('registration')
+  async registration(@Body() input: RegistrationUserDto) {
+    const { login, password, email } = input;
+
+    await this.authService.registration(login, password, email);
+  }
+
+  @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationEmailResending(
+    @Body() input: RegistrationEmailResendingDto,
+  ) {
+    const { email } = input;
+
+    await this.authService.registrationEmailResending(email);
+  }
+
+  @Get('me')
+  async me() {
+    return await this.authService.me();
   }
 }
