@@ -24,7 +24,11 @@ import {
   LoginOutputDto,
   LoginOutputDtoMapper,
 } from '@features/auth/api/dto/output/login.output.dto';
-import { MeOutputDtoMapper } from '@features/auth/api/dto/output/me.output.dto';
+import {
+  MeOutputDto,
+  MeOutputDtoMapper,
+} from '@features/auth/api/dto/output/me.output.dto';
+import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
 
 @Injectable()
 export class AuthService {
@@ -250,12 +254,8 @@ export class AuthService {
     await this.sendRegisterEmail(email, confirmationCode);
   }
 
-  public async me(): Promise<any> {
-    return MeOutputDtoMapper({
-      login: 'string',
-      email: 'strin',
-      userId: 'string',
-    });
+  public async me(user: UserOutputDto): Promise<MeOutputDto> {
+    return MeOutputDtoMapper(user);
   }
 
   private getAccessToken(userId: string | null) {

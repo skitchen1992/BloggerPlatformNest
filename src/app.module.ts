@@ -35,7 +35,7 @@ import { CommentsController } from '@features/comments/api/comments.controller';
 import { TestingController } from '@features/testing/api/testing.controller';
 import { IsLoginExistConstrain } from '@infrastructure/decorators/validate/is-login-exist.decorator';
 import { IsEmailExistConstrain } from '@infrastructure/decorators/validate/is-email-exist.decorator';
-import { AuthController } from '@features/auth/api/authController';
+import { AuthController } from '@features/auth/api/auth.controller';
 import { AuthService } from '@features/auth/application/auth.service';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
 import {

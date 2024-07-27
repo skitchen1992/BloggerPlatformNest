@@ -1,3 +1,5 @@
+import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
+
 export class MeOutputDto {
   login: string;
   email: string;
@@ -6,12 +8,12 @@ export class MeOutputDto {
 
 // MAPPERS
 
-export const MeOutputDtoMapper = (user: any): MeOutputDto => {
+export const MeOutputDtoMapper = (user: UserOutputDto): MeOutputDto => {
   const outputDto = new MeOutputDto();
 
   outputDto.login = user.login;
   outputDto.email = user.email;
-  outputDto.userId = user.userId;
+  outputDto.userId = user.id;
 
   return outputDto;
 };

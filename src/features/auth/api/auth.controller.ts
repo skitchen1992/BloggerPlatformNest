@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -6,6 +6,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
 import { AuthService } from '../application/auth.service';
@@ -14,12 +16,11 @@ import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recov
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
 import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/registration-confirmation.input.dto';
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
-
+import { BearerAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { Request } from 'express';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
-// Установка guard на весь контроллер
-//@UseGuards(BasicAuthGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -72,8 +73,12 @@ export class AuthController {
     await this.authService.registrationEmailResending(email);
   }
 
+  @ApiSecurity('bearer')
+  @UseGuards(BearerAuthGuard)
   @Get('me')
-  async me() {
-    return await this.authService.me();
+  async me(@Req() request: Request) {
+    const user = request.user;
+
+    return await this.authService.me(user!);
   }
 }
