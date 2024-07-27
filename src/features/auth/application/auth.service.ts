@@ -271,7 +271,7 @@ export class AuthService {
     const text = `Please confirm your email address by clicking the following link: link`;
     const html = `<p>Please confirm your email address by clicking the link below:</p><p><a href="${link}">Confirm Email</a></p>`;
 
-    await this.nodeMailer.sendMail(to, subject, text, html);
+    this.nodeMailer.sendMail(to, subject, text, html);
   }
 
   private async sendRecoveryPassEmail(to: string, confirmationCode: string) {
@@ -280,6 +280,6 @@ export class AuthService {
     const text = `To finish password recovery please follow the link below: link`;
     const html = `<p>To finish password recovery please follow the link below:</p><p><a href="${link}">Password recovery</a></p>`;
 
-    await this.nodeMailer.sendMail(to, subject, text, html);
+    this.nodeMailer.sendMail(to, subject, text, html);
   }
 }

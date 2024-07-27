@@ -57,6 +57,7 @@ export class AuthController {
   }
 
   @Post('registration')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() input: RegistrationUserDto) {
     const { login, password, email } = input;
 
