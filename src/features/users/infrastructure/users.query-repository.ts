@@ -63,17 +63,7 @@ export class UsersQueryRepository {
     );
   }
 
-  public async isUserExist(login: string, email: string): Promise<boolean> {
-    const user = await this.userModel
-      .findOne({
-        $or: [{ login }, { email }],
-      })
-      .lean();
-
-    return !!user;
-  }
-
-  public async findUserByLoginOrEmail(
+  public async getUserByLoginOrEmail(
     login: string,
     email: string,
   ): Promise<{
@@ -94,6 +84,35 @@ export class UsersQueryRepository {
     return { user, foundBy };
   }
 
+  public async getUserByConfirmationCode(
+    code: string,
+  ): Promise<UserDocument | null> {
+    const user = await this.userModel
+      .findOne({
+        'emailConfirmation.confirmationCode': code,
+      })
+      .lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  }
+
+  public async updateUserFieldById(
+    id: string,
+    field: string,
+    data: unknown,
+  ): Promise<boolean> {
+    const updateResult = await this.userModel.updateOne(
+      { _id: id },
+      { $set: { [field]: data } },
+    );
+
+    return updateResult.modifiedCount === 1;
+  }
+
   public async isLoginExist(login: string): Promise<boolean> {
     const user = await this.userModel.findOne({ login: login }).lean();
     return !user;
@@ -103,5 +122,14 @@ export class UsersQueryRepository {
     const user = await this.userModel.findOne({ email: email }).lean();
 
     return !user;
+  }
+  public async isUserExist(login: string, email: string): Promise<boolean> {
+    const user = await this.userModel
+      .findOne({
+        $or: [{ login }, { email }],
+      })
+      .lean();
+
+    return !!user;
   }
 }

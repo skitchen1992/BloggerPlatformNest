@@ -5,6 +5,7 @@ import { AuthService } from '../application/auth.service';
 import { LoginDto } from '@features/auth/api/dto/input/login.input.dto';
 import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recovery.input.dto';
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
+import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/registration-confirmation.input.dto';
 
 // Tag для swagger
 @ApiTags('Auth')
@@ -43,5 +44,13 @@ export class AuthController {
     const { newPassword, recoveryCode } = input;
 
     await this.authService.newPassword(newPassword, recoveryCode);
+  }
+
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationConfirmation(@Body() input: RegistrationConfirmationDto) {
+    const { code } = input;
+
+    await this.authService.registrationConfirmation(code);
   }
 }

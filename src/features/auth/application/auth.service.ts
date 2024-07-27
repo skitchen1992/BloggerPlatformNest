@@ -41,7 +41,7 @@ export class AuthService {
     email: string,
   ): Promise<void> {
     const { user, foundBy } =
-      await this.usersQueryRepository.findUserByLoginOrEmail(login, email);
+      await this.usersQueryRepository.getUserByLoginOrEmail(login, email);
 
     if (user) {
       throw new BadRequestException({
@@ -75,7 +75,7 @@ export class AuthService {
     loginOrEmail: string,
     password: string,
   ): Promise<LoginOutputDto> {
-    const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
+    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
       loginOrEmail,
       loginOrEmail,
     );
@@ -97,7 +97,7 @@ export class AuthService {
   }
 
   public async recoveryPassword(email: string): Promise<void> {
-    const { user } = await this.usersQueryRepository.findUserByLoginOrEmail(
+    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
       email,
       email,
     );
@@ -134,7 +134,12 @@ export class AuthService {
       });
     }
 
-    if (isExpiredDate(fromUnixTimeToISO(exp), getCurrentDate())) {
+    if (
+      isExpiredDate({
+        expirationDate: fromUnixTimeToISO(exp),
+        currentDate: getCurrentDate(),
+      })
+    ) {
       throw new BadRequestException({
         message: 'Recovery code not correct',
         key: 'recoveryCode',
@@ -158,6 +163,45 @@ export class AuthService {
     await this.usersRepository.update(
       userId,
       NewPasswordDtoMapper(passwordHash),
+    );
+  }
+
+  public async registrationConfirmation(code: string): Promise<void> {
+    const user = await this.usersQueryRepository.getUserByConfirmationCode(
+      code,
+    );
+
+    if (!user) {
+      throw new BadRequestException({
+        message: 'Activation code is not correct',
+        key: 'code',
+      });
+    }
+
+    if (user.emailConfirmation?.isConfirmed) {
+      throw new BadRequestException({
+        message: 'Email already confirmed',
+        key: 'code',
+      });
+    }
+
+    if (
+      user.emailConfirmation?.expirationDate &&
+      isExpiredDate({
+        currentDate: getCurrentDate(),
+        expirationDate: user.emailConfirmation.expirationDate.toString(),
+      })
+    ) {
+      throw new BadRequestException({
+        message: 'Confirmation code expired',
+        key: 'code',
+      });
+    }
+
+    await this.usersQueryRepository.updateUserFieldById(
+      user._id.toString(),
+      'emailConfirmation.isConfirmed',
+      true,
     );
   }
 
