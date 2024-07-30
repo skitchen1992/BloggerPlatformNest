@@ -6,7 +6,7 @@ import {
   ICommentatorInfo,
 } from '@features/comments/domain/comment.entity';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
-import { CommentUpdateDto } from '@features/comments/api/dto/input/update-comment.input.dto';
+import { UpdateCommentDto } from '@features/comments/api/dto/input/update-comment.input.dto';
 
 // Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()
@@ -39,7 +39,7 @@ export class CommentsService {
   }
 
   async update(id: string, content: string): Promise<boolean> {
-    const data: CommentUpdateDto = {
+    const data: UpdateCommentDto = {
       content,
     };
 

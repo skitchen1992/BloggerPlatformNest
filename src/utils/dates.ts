@@ -8,28 +8,28 @@ import {
 import type { Duration } from 'date-fns/types';
 
 export function add(date: Date | number | string, duration: Duration) {
-  return addFns(date, duration).toISOString();
+  return addFns(date, duration);
 }
 
 export function subtractSeconds(date: Date | number | string, amount: number) {
   return subSeconds(date, amount).toISOString();
 }
 
-export const getCurrentDate = () => {
+export function getCurrentDate() {
   return new Date().toISOString();
-};
+}
 
-export const fromUnixTimeToISO = (value: number) => {
+export function fromUnixTimeToISO(value: number) {
   return fromUnixTime(value).toISOString();
-};
+}
 
-export function isExpiredDate(
-  expirationDate: string,
-  currentDate: string,
-): boolean {
+export function isExpiredDate(payload: {
+  expirationDate: string;
+  currentDate: string;
+}): boolean {
   const comparisonResult = compareAsc(
-    parseISO(expirationDate),
-    parseISO(currentDate),
+    parseISO(payload.expirationDate),
+    parseISO(payload.currentDate),
   );
 
   // Если дата истечения равна текущей дате, считаем, что она истекла

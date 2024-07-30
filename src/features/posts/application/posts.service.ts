@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsRepository } from '@features/posts/infrastructure/posts.repository';
-import { PostUpdateDto } from '@features/posts/api/dto/input/update-post.input.dto';
+import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 import { Post } from '@features/posts/domain/post.entity';
 import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
 
@@ -43,7 +43,7 @@ export class PostsService {
     content: string,
     blogId: string,
   ): Promise<boolean> {
-    const data: PostUpdateDto = {
+    const data: UpdatePostDto = {
       title,
       shortDescription,
       content,

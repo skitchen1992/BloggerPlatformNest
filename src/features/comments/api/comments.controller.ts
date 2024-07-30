@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
-import { CommentUpdateDto } from '@features/comments/api/dto/input/update-comment.input.dto';
+import { UpdateCommentDto } from '@features/comments/api/dto/input/update-comment.input.dto';
 
 // Tag для swagger
 @ApiTags('Comments')
@@ -36,7 +36,7 @@ export class CommentsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: CommentUpdateDto) {
+  async update(@Param('id') id: string, @Body() input: UpdateCommentDto) {
     const { content } = input;
 
     const isUpdated: boolean = await this.commentsService.update(id, content);

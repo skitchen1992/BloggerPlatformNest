@@ -12,7 +12,7 @@ import { appSettings } from '@settings/app-settings';
 import { User, UserSchema } from '@features/users/domain/user.entity';
 import { UsersController } from '@features/users/api/users.controller';
 import { LoggerMiddleware } from '@infrastructure/middlewares/logger.middleware';
-import { HashBuilder } from '@utils/hash.builder';
+import { HashBuilder } from '@utils/hash-builder';
 import { Pagination } from '@base/models/pagination.base.model';
 import { BlogsController } from '@features/blogs/api/blogs.controller';
 import { BlogsService } from '@features/blogs/application/blogs.service';
@@ -33,40 +33,49 @@ import { CommentsQueryRepository } from '@features/comments/infrastructure/comme
 import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsController } from '@features/comments/api/comments.controller';
 import { TestingController } from '@features/testing/api/testing.controller';
+import { IsLoginExistConstrain } from '@infrastructure/decorators/validate/is-login-exist.decorator';
+import { IsEmailExistConstrain } from '@infrastructure/decorators/validate/is-email-exist.decorator';
+import { AuthController } from '@features/auth/api/auth.controller';
+import { AuthService } from '@features/auth/application/auth.service';
+import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
+import {
+  Session,
+  SessionSchema,
+} from '@features/session/domain/session.entity';
+import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
 
 const usersProviders: Provider[] = [
   UsersRepository,
   UsersService,
   UsersQueryRepository,
-  HashBuilder,
-  Pagination,
 ];
 
 const blogsProviders: Provider[] = [
   BlogsRepository,
   BlogsQueryRepository,
-  PostsQueryRepository,
   BlogsService,
-  PostsService,
-  Pagination,
 ];
 
 const postsProviders: Provider[] = [
   PostsRepository,
   PostsService,
   PostsQueryRepository,
-  BlogsQueryRepository,
-  CommentsQueryRepository,
-  CommentsService,
-  Pagination,
 ];
 
 const commentsProviders: Provider[] = [
   CommentsRepository,
   CommentsQueryRepository,
   CommentsService,
-  Pagination,
 ];
+
+const basesProviders: Provider[] = [
+  HashBuilder,
+  Pagination,
+  JwtService,
+  NodeMailer,
+];
+
+const authProviders: Provider[] = [AuthService];
 
 @Module({
   // Регистрация модулей
@@ -77,6 +86,7 @@ const commentsProviders: Provider[] = [
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Session.name, schema: SessionSchema },
     ]),
   ],
   // Регистрация провайдеров
@@ -85,6 +95,10 @@ const commentsProviders: Provider[] = [
     ...blogsProviders,
     ...postsProviders,
     ...commentsProviders,
+    ...authProviders,
+    ...basesProviders,
+    IsLoginExistConstrain,
+    IsEmailExistConstrain,
   ],
   // Регистрация контроллеров
   controllers: [
@@ -93,6 +107,7 @@ const commentsProviders: Provider[] = [
     PostsController,
     CommentsController,
     TestingController,
+    AuthController,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,7 +1,7 @@
 import { Trim } from '@infrastructure/decorators/transform/trim';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class BlogCreateDto {
+export class CreateBlogDto {
   @Trim()
   @IsString({ message: 'Name must be a string' })
   @Length(1, 15, { message: 'Name must be between 1 and 15 characters' })

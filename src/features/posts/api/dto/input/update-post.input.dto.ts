@@ -1,7 +1,7 @@
 import { Trim } from '@infrastructure/decorators/transform/trim';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class PostUpdateDto {
+export class UpdatePostDto {
   @Trim()
   @IsString({ message: 'Title must be a string' })
   @Length(1, 30, { message: 'Title must be between 1 and 30 characters' })

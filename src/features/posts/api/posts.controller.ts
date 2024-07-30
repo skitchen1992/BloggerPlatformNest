@@ -12,12 +12,12 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { PostCreateDto } from './dto/input/create-post.input.dto';
+import { CreatePostDto } from './dto/input/create-post.input.dto';
 import { PostsService } from '@features/posts/application/posts.service';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
-import { PostUpdateDto } from '@features/posts/api/dto/input/update-post.input.dto';
+import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
-import { CommentCreateDto } from '@features/comments/api/dto/input/create-comment.input.dto';
+import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
 import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import { ObjectId } from 'mongodb';
@@ -36,7 +36,7 @@ export class PostsController {
 
   @Post(':postId/comments')
   async createComment(
-    @Body() input: CommentCreateDto,
+    @Body() input: CreateCommentDto,
     @Param('postId') postId: string,
   ) {
     const post = await this.postsQueryRepository.getById(postId);
@@ -74,7 +74,7 @@ export class PostsController {
   }
 
   @Post()
-  async create(@Body() input: PostCreateDto) {
+  async create(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     const createdPostId: string = await this.postsService.create(
@@ -101,7 +101,7 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: PostUpdateDto) {
+  async update(@Param('id') id: string, @Body() input: UpdatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     const isUpdated: boolean = await this.postsService.update(

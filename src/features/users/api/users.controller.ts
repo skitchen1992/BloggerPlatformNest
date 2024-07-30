@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -10,17 +10,19 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
-import { UserCreateModel } from './dto/input/create-user.input.dto';
+import { CreateUserDto } from './dto/input/create-user.input.dto';
 import { UsersService } from '../application/users.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
+import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 
 // Tag для swagger
 @ApiTags('Users')
 @Controller('users')
-// Установка guard на весь контроллер
-//@UseGuards(AuthGuard)
+@ApiSecurity('basic')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -33,7 +35,7 @@ export class UsersController {
   }
 
   @Post()
-  async create(@Body() input: UserCreateModel) {
+  async create(@Body() input: CreateUserDto) {
     const { login, password, email } = input;
 
     const createdUserId: string = await this.usersService.create(

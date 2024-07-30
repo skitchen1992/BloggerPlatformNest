@@ -11,6 +11,7 @@ type Filters =
   | [string, SortOrder][]
   | null
   | undefined;
+
 type Query = Record<string, unknown>;
 
 @Injectable()

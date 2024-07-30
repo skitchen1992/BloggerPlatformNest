@@ -55,6 +55,7 @@ class APISettings {
 
   //JWT
   public readonly JWT_SECRET_KEY: string;
+  public readonly ACCESS_TOKEN_EXPIRED_IN: string;
 
   //EMAIL
   public readonly EMAIL_USER: string;
@@ -86,10 +87,15 @@ class APISettings {
     this.ADMIN_AUTH_PASSWORD = envVariables.ADMIN_AUTH_PASSWORD;
 
     //JWT
-    if (!envVariables.JWT_SECRET_KEY) {
+    if (!envVariables.JWT_SECRET_KEY || !envVariables.ACCESS_TOKEN_EXPIRED_IN) {
       throw new Error('JWT_SECRET_KEY is not defined');
     }
     this.JWT_SECRET_KEY = envVariables.JWT_SECRET_KEY;
+
+    if (!envVariables.ACCESS_TOKEN_EXPIRED_IN) {
+      throw new Error('ACCESS_TOKEN_EXPIRED_IN is not defined');
+    }
+    this.ACCESS_TOKEN_EXPIRED_IN = envVariables.ACCESS_TOKEN_EXPIRED_IN;
 
     //EMAIL
     if (!envVariables.EMAIL_USER || !envVariables.EMAIL_PASS) {
