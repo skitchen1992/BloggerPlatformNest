@@ -43,6 +43,7 @@ import {
   SessionSchema,
 } from '@features/session/domain/session.entity';
 import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
+import { BasicStrategy } from '@infrastructure/strategies/basic.strategy';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -73,6 +74,7 @@ const basesProviders: Provider[] = [
   Pagination,
   JwtService,
   NodeMailer,
+  BasicStrategy,
 ];
 
 const authProviders: Provider[] = [AuthService];
