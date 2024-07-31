@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: appSettings.api.JWT_SECRET_KEY,
-      passReqToCallback: true,
+      passReqToCallback: true, // Позволяет передать объект request в метод validate
     });
   }
 

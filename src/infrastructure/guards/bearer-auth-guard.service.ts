@@ -1,13 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
-import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from 'jsonwebtoken';
-import { Request } from 'express';
+import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 // Custom guard
