@@ -17,7 +17,7 @@ import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.
 import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/registration-confirmation.input.dto';
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
 import { Request } from 'express';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -75,8 +75,7 @@ export class AuthController {
   }
 
   @ApiSecurity('bearer')
-  //@UseGuards(BearerAuthGuard)
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Req() request: Request) {
     const user = request.currentUser;
