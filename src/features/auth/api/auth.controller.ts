@@ -80,7 +80,6 @@ export class AuthController {
   @Get('me')
   async me(@Req() request: Request) {
     const user = request.currentUser;
-    console.log('request.currentUser', request.currentUser);
     return await this.authService.me(user!);
   }
 }
