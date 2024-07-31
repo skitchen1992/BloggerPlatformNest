@@ -42,8 +42,9 @@ import {
   Session,
   SessionSchema,
 } from '@features/session/domain/session.entity';
-import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
 import { BasicStrategy } from '@infrastructure/strategies/basic.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from '@infrastructure/strategies/jwt.strategy';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -72,9 +73,9 @@ const commentsProviders: Provider[] = [
 const basesProviders: Provider[] = [
   HashBuilder,
   Pagination,
-  JwtService,
   NodeMailer,
   BasicStrategy,
+  JwtStrategy,
 ];
 
 const authProviders: Provider[] = [AuthService];
@@ -90,6 +91,11 @@ const authProviders: Provider[] = [AuthService];
       { name: Comment.name, schema: CommentSchema },
       { name: Session.name, schema: SessionSchema },
     ]),
+    JwtModule.register({
+      global: true,
+      secret: appSettings.api.JWT_SECRET_KEY,
+      signOptions: { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
+    }),
   ],
   // Регистрация провайдеров
   providers: [

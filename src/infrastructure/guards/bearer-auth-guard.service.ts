@@ -4,9 +4,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtPayload } from 'jsonwebtoken';
-import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
 import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
+import { Request } from 'express';
 
 // Custom guard
 // https://docs.nestjs.com/guards
@@ -17,24 +18,26 @@ export class BearerAuthGuard implements CanActivate {
     protected readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
 
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader || authHeader.indexOf('Bearer ') === -1) {
+    if (!token) {
       throw new UnauthorizedException();
     }
 
-    const token = authHeader.slice(7);
+    try {
+      const { userId } =
+        ((await this.jwtService.verifyAsync(token)) as JwtPayload) ?? {};
 
-    const { userId } = (this.jwtService.verifyToken(token) as JwtPayload) ?? {};
-
-    if (!userId) {
+      request.currentUser = await this.usersQueryRepository.getById(userId);
+      return true;
+    } catch {
       throw new UnauthorizedException();
     }
-
-    request.user = await this.usersQueryRepository.getById(userId);
-    return true;
   }
 }
