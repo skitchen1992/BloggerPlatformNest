@@ -125,7 +125,7 @@ describe('Users (e2e) GET', () => {
     function createUsersArray(
       users: Array<{ login: string; password: string; email: string }>,
     ): Array<any> {
-      return users.map((user, index) => ({
+      return users.map((user) => ({
         login: user.login,
         email: user.email,
         password: user.password,
