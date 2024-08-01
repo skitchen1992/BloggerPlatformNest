@@ -5,31 +5,25 @@ import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { AppModule } from '../src/app.module';
 import mongoose, { Model } from 'mongoose';
 import { User, UserDocument } from '@features/users/domain/user.entity';
-import { UsersRepository } from '@features/users/infrastructure/users.repository';
+import { applyAppSettings } from '@settings/apply-app-setting';
 
 let mongoDB: MongoMemoryServer;
 export let app: INestApplication;
-
 export let mockUserModel: Model<UserDocument>;
 
 beforeAll(async () => {
-  mongoDB = await MongoMemoryServer.create({ instance: { port: 3001 } });
+  mongoDB = await MongoMemoryServer.create();
 
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [
+      AppModule,
       MongooseModule.forRootAsync({
         useFactory: async () => ({
           uri: mongoDB.getUri(),
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
         }),
       }),
-      AppModule,
-    ],
-    providers: [
-      {
-        provide: getModelToken(User.name),
-        useValue: Model,
-      },
-      UsersRepository,
     ],
   }).compile();
 
@@ -38,7 +32,14 @@ beforeAll(async () => {
   );
 
   app = moduleFixture.createNestApplication();
+
+  applyAppSettings(app);
+
   await app.init();
+});
+
+beforeEach(async () => {
+  await mockUserModel.deleteMany({});
 });
 
 afterAll(async () => {

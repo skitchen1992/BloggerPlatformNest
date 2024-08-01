@@ -13,5 +13,8 @@
     "^@infrastructure/(.*)$": "<rootDir>/src/infrastructure/$1",
     "^@settings/(.*)$": "<rootDir>/src/settings/$1",
     "^@utils/(.*)$": "<rootDir>/src/utils/$1"
-  }
+  },
+  "verbose": true,
+  "collectCoverage": true,
+  "coverageReporters": ["text-summary", "lcov"]
 }
