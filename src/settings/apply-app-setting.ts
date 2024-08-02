@@ -11,7 +11,7 @@ import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 
 // Префикс нашего приложения (http://site.com/api)
-const APP_PREFIX = '/api';
+export const APP_PREFIX = '/api';
 
 // Используем данную функцию в main.ts и в e2e тестах
 export const applyAppSettings = (app: INestApplication) => {

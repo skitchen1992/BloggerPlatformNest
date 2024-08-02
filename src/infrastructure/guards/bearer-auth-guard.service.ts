@@ -1,40 +1,38 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { JwtPayload } from 'jsonwebtoken';
-import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
-import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 // Custom guard
 // https://docs.nestjs.com/guards
+// @Injectable()
+// export class JwtAuthGuard implements CanActivate {
+//   constructor(
+//     protected readonly jwtService: JwtService,
+//     protected readonly usersQueryRepository: UsersQueryRepository,
+//   ) {}
+//
+//   private extractTokenFromHeader(request: Request): string | undefined {
+//     const [type, token] = request.headers.authorization?.split(' ') ?? [];
+//     return type === 'Bearer' ? token : undefined;
+//   }
+//   async canActivate(context: ExecutionContext): Promise<boolean> {
+//     const request = context.switchToHttp().getRequest();
+//     const token = this.extractTokenFromHeader(request);
+//
+//     if (!token) {
+//       throw new UnauthorizedException();
+//     }
+//
+//     try {
+//       const { userId } =
+//         ((await this.jwtService.verifyAsync(token)) as JwtPayload) ?? {};
+//
+//       request.currentUser = await this.usersQueryRepository.getById(userId);
+//       return true;
+//     } catch {
+//       throw new UnauthorizedException();
+//     }
+//   }
+// }
+
 @Injectable()
-export class BearerAuthGuard implements CanActivate {
-  constructor(
-    protected readonly jwtService: JwtService,
-    protected readonly usersQueryRepository: UsersQueryRepository,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader || authHeader.indexOf('Bearer ') === -1) {
-      throw new UnauthorizedException();
-    }
-
-    const token = authHeader.slice(7);
-
-    const { userId } = (this.jwtService.verifyToken(token) as JwtPayload) ?? {};
-
-    if (!userId) {
-      throw new UnauthorizedException();
-    }
-
-    request.user = await this.usersQueryRepository.getById(userId);
-    return true;
-  }
-}
+export class JwtAuthGuard extends AuthGuard('jwt') {}

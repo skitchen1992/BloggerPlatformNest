@@ -15,8 +15,6 @@ import {
   isExpiredDate,
 } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
-import { JwtService } from '@infrastructure/servises/jwt/jwt.service';
-import { appSettings } from '@settings/app-settings';
 import { RecoveryCodeDtoMapper } from '@features/auth/api/dto/recovery-code.dto';
 import { JwtPayload } from 'jsonwebtoken';
 import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';
@@ -29,6 +27,7 @@ import {
   MeOutputDtoMapper,
 } from '@features/auth/api/dto/output/me.output.dto';
 import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -98,7 +97,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return LoginOutputDtoMapper(this.getAccessToken(user._id.toString()));
+    return LoginOutputDtoMapper(await this.getAccessToken(user._id.toString()));
   }
 
   public async recoveryPassword(email: string): Promise<void> {
@@ -108,14 +107,14 @@ export class AuthService {
     );
 
     if (!user) {
-      const recoveryAccessToken = this.getAccessToken(null);
+      const recoveryAccessToken = await this.getAccessToken(null);
       await this.sendRecoveryPassEmail(email, recoveryAccessToken);
       return;
     }
 
     const userId = user._id.toString();
 
-    const recoveryAccessToken = this.getAccessToken(userId);
+    const recoveryAccessToken = await this.getAccessToken(userId);
 
     await this.usersRepository.update(
       userId,
@@ -130,7 +129,7 @@ export class AuthService {
     recoveryCode: string,
   ): Promise<void> {
     const { userId, exp } =
-      (this.jwtService.verifyToken(recoveryCode) as JwtPayload) ?? {};
+      (this.jwtService.verify(recoveryCode) as JwtPayload) ?? {};
 
     if (!userId || !exp) {
       throw new BadRequestException({
@@ -258,11 +257,8 @@ export class AuthService {
     return MeOutputDtoMapper(user);
   }
 
-  private getAccessToken(userId: string | null) {
-    return this.jwtService.generateToken(
-      { userId: userId },
-      { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
-    );
+  private async getAccessToken(userId: string | null) {
+    return await this.jwtService.signAsync({ userId: userId });
   }
 
   private async sendRegisterEmail(to: string, confirmationCode: string) {
