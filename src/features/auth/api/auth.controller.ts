@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from '@features/auth/application/handlers/login.handler';
 import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
+import { PasswordRecoveryCommand } from '@features/auth/application/handlers/passport-recovery.handler';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,7 +46,9 @@ export class AuthController {
   async passwordRecovery(@Body() input: PasswordRecoveryDto) {
     const { email } = input;
 
-    await this.authService.recoveryPassword(email);
+    await this.commandBus.execute<PasswordRecoveryCommand, void>(
+      new PasswordRecoveryCommand(email),
+    );
   }
 
   @Post('new-password')

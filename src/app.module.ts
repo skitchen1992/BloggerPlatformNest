@@ -54,6 +54,7 @@ import { CreateUserHandler } from '@features/users/application/handlers/create-u
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteUserHandler } from '@features/users/application/handlers/delete-user.handler';
 import { LoginHandler } from '@features/auth/application/handlers/login.handler';
+import { PasswordRecoveryHandler } from '@features/auth/application/handlers/passport-recovery.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -89,7 +90,11 @@ const basesProviders: Provider[] = [
   JwtStrategy,
 ];
 
-const authProviders: Provider[] = [AuthService, LoginHandler];
+const authProviders: Provider[] = [
+  AuthService,
+  LoginHandler,
+  PasswordRecoveryHandler,
+];
 
 @Module({
   // Регистрация модулей
