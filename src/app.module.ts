@@ -8,7 +8,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { UsersService } from '@features/users/application/users.service';
 import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
-import { appSettings } from '@settings/app-settings';
 import { User, UserSchema } from '@features/users/domain/user.entity';
 import { UsersController } from '@features/users/api/users.controller';
 import { LoggerMiddleware } from '@infrastructure/middlewares/logger.middleware';
@@ -45,6 +44,12 @@ import {
 import { BasicStrategy } from '@infrastructure/strategies/basic.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '@infrastructure/strategies/jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration, {
+  ConfigurationType,
+  validate,
+} from '@settings/configuration';
+import { EnvironmentsEnum } from '@settings/env-settings';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -83,7 +88,25 @@ const authProviders: Provider[] = [AuthService];
 @Module({
   // Регистрация модулей
   imports: [
-    MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      validate: validate,
+      envFilePath: ['.env'],
+      ignoreEnvFile:
+        process.env.ENV !== EnvironmentsEnum.DEVELOPMENT &&
+        process.env.ENV !== EnvironmentsEnum.TESTING,
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings = configService.get('apiSettings', { infer: true });
+
+        return {
+          uri: apiSettings.MONGO_CONNECTION_URI,
+        };
+      },
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
@@ -91,10 +114,19 @@ const authProviders: Provider[] = [AuthService];
       { name: Comment.name, schema: CommentSchema },
       { name: Session.name, schema: SessionSchema },
     ]),
-    JwtModule.register({
+    JwtModule.registerAsync({
       global: true,
-      secret: appSettings.api.JWT_SECRET_KEY,
-      signOptions: { expiresIn: appSettings.api.ACCESS_TOKEN_EXPIRED_IN },
+      useFactory: async (
+        configService: ConfigService<ConfigurationType, true>,
+      ) => {
+        const apiSettings = configService.get('apiSettings', { infer: true });
+
+        return {
+          secret: apiSettings.JWT_SECRET_KEY,
+          signOptions: { expiresIn: apiSettings.ACCESS_TOKEN_EXPIRED_IN },
+        };
+      },
+      inject: [ConfigService],
     }),
   ],
   // Регистрация провайдеров

@@ -2,13 +2,9 @@ import { config } from 'dotenv';
 
 config();
 
-export type EnvironmentVariable = { [key: string]: string | undefined };
+type EnvironmentVariable = { [key: string]: string | undefined };
 
-export type EnvironmentsTypes =
-  | 'DEVELOPMENT'
-  | 'STAGING'
-  | 'PRODUCTION'
-  | 'TESTING';
+type EnvironmentsTypes = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'TESTING';
 export const Environments = ['DEVELOPMENT', 'STAGING', 'PRODUCTION', 'TESTING'];
 
 export class EnvironmentSettings {
@@ -132,4 +128,4 @@ const env = new EnvironmentSettings(
 );
 
 const api = new APISettings(process.env);
-export const appSettings = new AppSettings(env, api);
+const appSettings = new AppSettings(env, api);
