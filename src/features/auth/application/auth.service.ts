@@ -73,50 +73,22 @@ export class AuthService {
     await this.sendRegisterEmail(email, confirmationCode);
   }
 
-  public async newPassword(
-    newPassword: string,
-    recoveryCode: string,
-  ): Promise<void> {
-    const { userId, exp } =
-      (this.jwtService.verify(recoveryCode) as JwtPayload) ?? {};
+  public verifyRecoveryCode(recoveryCode: string) {
+    try {
+      const { userId, exp } =
+        (this.jwtService.verify(recoveryCode) as JwtPayload) ?? {};
 
-    if (!userId || !exp) {
+      return { userId, exp };
+    } catch (e) {
       throw new BadRequestException({
         message: 'Recovery code not correct',
         key: 'recoveryCode',
       });
     }
+  }
 
-    if (
-      isExpiredDate({
-        expirationDate: fromUnixTimeToISO(exp),
-        currentDate: getCurrentDate(),
-      })
-    ) {
-      throw new BadRequestException({
-        message: 'Recovery code not correct',
-        key: 'recoveryCode',
-      });
-    }
-
-    const user = await this.usersRepository.get(userId);
-
-    if (
-      user?.recoveryCode?.isUsed ||
-      user?.recoveryCode?.code !== recoveryCode
-    ) {
-      throw new BadRequestException({
-        message: 'Recovery code not correct',
-        key: 'recoveryCode',
-      });
-    }
-
-    const passwordHash = await this.hashBuilder.hash(newPassword);
-
-    await this.usersRepository.update(
-      userId,
-      NewPasswordDtoMapper(passwordHash),
-    );
+  async generatePasswordHash(password: string): Promise<string> {
+    return await this.hashBuilder.hash(password);
   }
 
   public async registrationConfirmation(code: string): Promise<void> {

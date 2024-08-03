@@ -22,6 +22,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from '@features/auth/application/handlers/login.handler';
 import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
 import { PasswordRecoveryCommand } from '@features/auth/application/handlers/passport-recovery.handler';
+import { NewPassportCommand } from '@features/auth/application/handlers/new-passport.handler';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -56,7 +57,11 @@ export class AuthController {
   async newPassword(@Body() input: NewPasswordDto) {
     const { newPassword, recoveryCode } = input;
 
-    await this.authService.newPassword(newPassword, recoveryCode);
+    // await this.authService.newPassword(newPassword, recoveryCode);
+
+    await this.commandBus.execute<NewPassportCommand, void>(
+      new NewPassportCommand(newPassword, recoveryCode),
+    );
   }
 
   @Post('registration-confirmation')

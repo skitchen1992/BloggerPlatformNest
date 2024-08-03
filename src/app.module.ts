@@ -55,6 +55,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteUserHandler } from '@features/users/application/handlers/delete-user.handler';
 import { LoginHandler } from '@features/auth/application/handlers/login.handler';
 import { PasswordRecoveryHandler } from '@features/auth/application/handlers/passport-recovery.handler';
+import { NewPassportHandler } from '@features/auth/application/handlers/new-passport.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -94,6 +95,7 @@ const authProviders: Provider[] = [
   AuthService,
   LoginHandler,
   PasswordRecoveryHandler,
+  NewPassportHandler,
 ];
 
 @Module({

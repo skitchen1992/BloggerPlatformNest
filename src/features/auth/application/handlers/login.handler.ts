@@ -1,7 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
-import { User } from '@features/users/domain/user.entity';
-import { UsersService } from '@features/users/application/users.service';
 import { UnauthorizedException } from '@nestjs/common';
 import {
   LoginOutputDto,
