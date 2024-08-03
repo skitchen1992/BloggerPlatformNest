@@ -53,6 +53,7 @@ import { EnvironmentsEnum } from '@settings/env-settings';
 import { CreateUserHandler } from '@features/users/application/handlers/create-user.handler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteUserHandler } from '@features/users/application/handlers/delete-user.handler';
+import { LoginHandler } from '@features/auth/application/handlers/login.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -88,7 +89,7 @@ const basesProviders: Provider[] = [
   JwtStrategy,
 ];
 
-const authProviders: Provider[] = [AuthService];
+const authProviders: Provider[] = [AuthService, LoginHandler];
 
 @Module({
   // Регистрация модулей

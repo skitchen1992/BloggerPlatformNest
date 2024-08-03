@@ -18,18 +18,26 @@ import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/regist
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginCommand } from '@features/auth/application/handlers/login.handler';
+import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() input: LoginDto) {
     const { loginOrEmail, password } = input;
 
-    return await this.authService.login(loginOrEmail, password);
+    return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
+      new LoginCommand(loginOrEmail, password),
+    );
   }
 
   @Post('password-recovery')

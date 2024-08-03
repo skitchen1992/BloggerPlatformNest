@@ -37,6 +37,13 @@ export class AuthService {
     protected readonly jwtService: JwtService,
   ) {}
 
+  public async isCorrectPass(
+    password: string,
+    userPassword: string,
+  ): Promise<boolean> {
+    return this.hashBuilder.compare(password, userPassword);
+  }
+
   public async registration(
     login: string,
     password: string,
@@ -73,31 +80,6 @@ export class AuthService {
     await this.usersRepository.create(newUser);
 
     await this.sendRegisterEmail(email, confirmationCode);
-  }
-
-  public async login(
-    loginOrEmail: string,
-    password: string,
-  ): Promise<LoginOutputDto> {
-    const { user } = await this.usersRepository.getUserByLoginOrEmail(
-      loginOrEmail,
-      loginOrEmail,
-    );
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    const isCorrectPass = await this.hashBuilder.compare(
-      password,
-      user.password,
-    );
-
-    if (!isCorrectPass) {
-      throw new UnauthorizedException();
-    }
-
-    return LoginOutputDtoMapper(await this.getAccessToken(user._id.toString()));
   }
 
   public async recoveryPassword(email: string): Promise<void> {
@@ -255,7 +237,7 @@ export class AuthService {
     return MeOutputDtoMapper(user);
   }
 
-  private async getAccessToken(userId: string | null) {
+  public async getAccessToken(userId: string | null) {
     return await this.jwtService.signAsync({ userId: userId });
   }
 
