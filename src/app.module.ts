@@ -50,11 +50,16 @@ import configuration, {
   validate,
 } from '@settings/configuration';
 import { EnvironmentsEnum } from '@settings/env-settings';
+import { CreateUserHandler } from '@features/users/application/handlers/create-user.handler';
+import { CqrsModule } from '@nestjs/cqrs';
+import { DeleteUserHandler } from '@features/users/application/handlers/delete-user.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
   UsersService,
   UsersQueryRepository,
+  CreateUserHandler,
+  DeleteUserHandler,
 ];
 
 const blogsProviders: Provider[] = [
@@ -88,6 +93,7 @@ const authProviders: Provider[] = [AuthService];
 @Module({
   // Регистрация модулей
   imports: [
+    CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],

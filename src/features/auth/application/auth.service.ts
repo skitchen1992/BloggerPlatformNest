@@ -6,7 +6,6 @@ import {
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { User } from '@features/users/domain/user.entity';
 import { HashBuilder } from '@utils/hash-builder';
-import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
 import {
   add,
@@ -33,7 +32,6 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
     private readonly hashBuilder: HashBuilder,
     protected readonly nodeMailer: NodeMailer,
     protected readonly jwtService: JwtService,
@@ -44,10 +42,12 @@ export class AuthService {
     password: string,
     email: string,
   ): Promise<void> {
-    const { user, foundBy } =
-      await this.usersQueryRepository.getUserByLoginOrEmail(login, email);
+    const { foundBy } = await this.usersRepository.getUserByLoginOrEmail(
+      login,
+      email,
+    );
 
-    if (user) {
+    if (foundBy) {
       throw new BadRequestException({
         message: 'User already exists',
         key: foundBy,
@@ -79,7 +79,7 @@ export class AuthService {
     loginOrEmail: string,
     password: string,
   ): Promise<LoginOutputDto> {
-    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
+    const { user } = await this.usersRepository.getUserByLoginOrEmail(
       loginOrEmail,
       loginOrEmail,
     );
@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   public async recoveryPassword(email: string): Promise<void> {
-    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
+    const { user } = await this.usersRepository.getUserByLoginOrEmail(
       email,
       email,
     );
@@ -171,9 +171,7 @@ export class AuthService {
   }
 
   public async registrationConfirmation(code: string): Promise<void> {
-    const user = await this.usersQueryRepository.getUserByConfirmationCode(
-      code,
-    );
+    const user = await this.usersRepository.getUserByConfirmationCode(code);
 
     if (!user) {
       throw new BadRequestException({
@@ -202,7 +200,7 @@ export class AuthService {
       });
     }
 
-    await this.usersQueryRepository.updateUserFieldById(
+    await this.usersRepository.updateUserFieldById(
       user._id.toString(),
       'emailConfirmation.isConfirmed',
       true,
@@ -210,7 +208,7 @@ export class AuthService {
   }
 
   public async registrationEmailResending(email: string): Promise<void> {
-    const { user } = await this.usersQueryRepository.getUserByLoginOrEmail(
+    const { user } = await this.usersRepository.getUserByLoginOrEmail(
       email,
       email,
     );
@@ -244,7 +242,7 @@ export class AuthService {
 
     const confirmationCode = getUniqueId();
 
-    await this.usersQueryRepository.updateUserFieldById(
+    await this.usersRepository.updateUserFieldById(
       user._id.toString(),
       'emailConfirmation.confirmationCode',
       confirmationCode,

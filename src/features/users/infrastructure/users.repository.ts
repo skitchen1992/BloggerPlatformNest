@@ -34,4 +34,90 @@ export class UsersRepository {
 
     return updatedResult.modifiedCount === 1;
   }
+
+  public async getByField(
+    field: string,
+    value: string,
+  ): Promise<UserDocument | null> {
+    const query: Record<string, string> = {};
+    query[field] = value;
+
+    const user = await this.userModel.findOne(query).lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  }
+  public async updateUserFieldById(
+    id: string,
+    field: string,
+    data: unknown,
+  ): Promise<boolean> {
+    const updateResult = await this.userModel.updateOne(
+      { _id: id },
+      { $set: { [field]: data } },
+    );
+
+    return updateResult.modifiedCount === 1;
+  }
+
+  public async isLoginExist(login: string): Promise<boolean> {
+    const user = await this.userModel.countDocuments({ login: login });
+
+    return !Boolean(user);
+  }
+
+  public async isEmailExist(email: string): Promise<boolean> {
+    const user = await this.userModel.countDocuments({ email: email });
+
+    return !Boolean(user);
+  }
+  public async isUserExist(login: string, email: string): Promise<boolean> {
+    const user = await this.userModel
+      .countDocuments({
+        $or: [{ login }, { email }],
+      })
+      .lean();
+
+    return Boolean(user);
+  }
+
+  public async getUserByLoginOrEmail(
+    login: string,
+    email: string,
+  ): Promise<{
+    user: UserDocument | null;
+    foundBy: string | null;
+  }> {
+    const user = await this.userModel
+      .findOne({
+        $or: [{ login }, { email }],
+      })
+      .lean();
+
+    if (!user) {
+      return { user: null, foundBy: null };
+    }
+
+    const foundBy = user.login === login ? 'login' : 'email';
+    return { user, foundBy };
+  }
+
+  public async getUserByConfirmationCode(
+    code: string,
+  ): Promise<UserDocument | null> {
+    const user = await this.userModel
+      .findOne({
+        'emailConfirmation.confirmationCode': code,
+      })
+      .lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  }
 }

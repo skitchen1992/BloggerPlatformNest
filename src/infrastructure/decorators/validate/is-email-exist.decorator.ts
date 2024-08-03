@@ -6,16 +6,16 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { Injectable } from '@nestjs/common';
-import { UsersQueryRepository } from '@features/users/infrastructure/users.query-repository';
+import { UsersRepository } from '@features/users/infrastructure/users.repository';
 
 //Обязательная регистрация в ioc
 @ValidatorConstraint({ name: 'IsEmailExist', async: true })
 @Injectable()
 export class IsEmailExistConstrain implements ValidatorConstraintInterface {
-  constructor(private readonly usersQueryRepository: UsersQueryRepository) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async validate(value: any): Promise<boolean> {
-    return await this.usersQueryRepository.isEmailExist(value);
+    return await this.usersRepository.isEmailExist(value);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

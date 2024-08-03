@@ -6,7 +6,6 @@ import { ConfigurationType } from '@settings/configuration';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log('test', process.env);
 
   applyAppSettings(app);
 
