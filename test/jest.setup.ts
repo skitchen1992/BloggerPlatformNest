@@ -6,10 +6,16 @@ import { AppModule } from '../src/app.module';
 import mongoose, { Model } from 'mongoose';
 import { User, UserDocument } from '@features/users/domain/user.entity';
 import { applyAppSettings } from '@settings/apply-app-setting';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '@settings/configuration';
+import { APISettings } from '@settings/api-settings';
+import { EnvironmentSettings } from '@settings/env-settings';
 
 let mongoDB: MongoMemoryServer;
 export let app: INestApplication;
 export let mockUserModel: Model<UserDocument>;
+export let apiSettings: APISettings;
+export let environmentSettings: EnvironmentSettings;
 
 beforeAll(async () => {
   mongoDB = await MongoMemoryServer.create();
@@ -32,6 +38,13 @@ beforeAll(async () => {
   );
 
   app = moduleFixture.createNestApplication();
+
+  const configService = app.get(ConfigService<ConfigurationType, true>);
+
+  apiSettings = configService.get('apiSettings', { infer: true });
+  environmentSettings = configService.get('environmentSettings', {
+    infer: true,
+  });
 
   applyAppSettings(app);
 
