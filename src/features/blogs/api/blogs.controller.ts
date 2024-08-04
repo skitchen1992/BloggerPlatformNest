@@ -14,13 +14,11 @@ import {
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import { CreateBlogDto } from './dto/input/create-blog.input.dto';
-import { BlogsService } from '../application/blogs.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
-import { PostsService } from '@features/posts/application/posts.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
 import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
@@ -33,10 +31,8 @@ import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-b
 export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly postsService: PostsService,
   ) {}
 
   @Get()
