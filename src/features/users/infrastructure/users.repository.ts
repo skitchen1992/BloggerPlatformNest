@@ -8,13 +8,17 @@ export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: UserModelType) {}
 
   public async get(userId: string): Promise<UserDocument | null> {
-    const user = await this.userModel.findById(userId).lean();
+    try {
+      const user = await this.userModel.findById(userId).lean();
 
-    if (!user) {
+      if (!user) {
+        return null;
+      }
+
+      return user;
+    } catch (e) {
       return null;
     }
-
-    return user;
   }
 
   public async create(newUser: User): Promise<string> {
@@ -24,55 +28,71 @@ export class UsersRepository {
   }
 
   public async delete(id: string): Promise<boolean> {
-    const deleteResult = await this.userModel.deleteOne({ _id: id });
+    try {
+      const deleteResult = await this.userModel.deleteOne({ _id: id });
 
-    return deleteResult.deletedCount === 1;
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async update(id: string, data: UpdateQuery<User>): Promise<boolean> {
-    const updatedResult = await this.userModel.updateOne({ _id: id }, data);
+    try {
+      const updatedResult = await this.userModel.updateOne({ _id: id }, data);
 
-    return updatedResult.modifiedCount === 1;
+      return updatedResult.modifiedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async getByField(
     field: string,
     value: string,
   ): Promise<UserDocument | null> {
-    const query: Record<string, string> = {};
-    query[field] = value;
+    try {
+      const query: Record<string, string> = {};
+      query[field] = value;
 
-    const user = await this.userModel.findOne(query).lean();
+      const user = await this.userModel.findOne(query).lean();
 
-    if (!user) {
+      if (!user) {
+        return null;
+      }
+
+      return user;
+    } catch (e) {
       return null;
     }
-
-    return user;
   }
   public async updateUserFieldById(
     id: string,
     field: string,
     data: unknown,
   ): Promise<boolean> {
-    const updateResult = await this.userModel.updateOne(
-      { _id: id },
-      { $set: { [field]: data } },
-    );
+    try {
+      const updateResult = await this.userModel.updateOne(
+        { _id: id },
+        { $set: { [field]: data } },
+      );
 
-    return updateResult.modifiedCount === 1;
+      return updateResult.modifiedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async isLoginExist(login: string): Promise<boolean> {
     const user = await this.userModel.countDocuments({ login: login });
 
-    return !Boolean(user);
+    return Boolean(user);
   }
 
   public async isEmailExist(email: string): Promise<boolean> {
     const user = await this.userModel.countDocuments({ email: email });
 
-    return !Boolean(user);
+    return Boolean(user);
   }
   public async isUserExist(login: string, email: string): Promise<boolean> {
     const user = await this.userModel

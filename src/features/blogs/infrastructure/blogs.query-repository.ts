@@ -20,13 +20,17 @@ export class BlogsQueryRepository {
   ) {}
 
   public async getById(userId: string): Promise<BlogOutputDto | null> {
-    const blog = await this.blogModel.findById(userId).lean();
+    try {
+      const blog = await this.blogModel.findById(userId).lean();
 
-    if (!blog) {
+      if (!blog) {
+        return null;
+      }
+
+      return BlogOutputDtoMapper(blog);
+    } catch (e) {
       return null;
     }
-
-    return BlogOutputDtoMapper(blog);
   }
 
   public async getAll(query: BlogsQuery): Promise<BlogOutputPaginationDto> {

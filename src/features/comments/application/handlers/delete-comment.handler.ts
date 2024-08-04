@@ -14,13 +14,9 @@ export class DeleteCommentHandler
   async execute(command: DeleteCommentCommand): Promise<void> {
     const { id } = command;
 
-    try {
-      const isDeleted: boolean = await this.commentsRepository.delete(id);
+    const isDeleted: boolean = await this.commentsRepository.delete(id);
 
-      if (!isDeleted) {
-        throw new NotFoundException(`Comment with id ${id} not found`);
-      }
-    } catch (e) {
+    if (!isDeleted) {
       throw new NotFoundException(`Comment with id ${id} not found`);
     }
   }

@@ -15,7 +15,8 @@ export class IsLoginExistConstrain implements ValidatorConstraintInterface {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async validate(value: any): Promise<boolean> {
-    return await this.usersRepository.isLoginExist(value);
+    const isLoginExist = await this.usersRepository.isLoginExist(value);
+    return !isLoginExist;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

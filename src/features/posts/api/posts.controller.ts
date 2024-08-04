@@ -18,19 +18,20 @@ import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
-import { CommentsService } from '@features/comments/application/comments.service';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
-import { ObjectId } from 'mongodb';
 import { CommentQuery } from '@features/comments/api/dto/output/comment.output.pagination.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
+import { ObjectId } from 'mongodb';
 
 // Tag для swagger
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly commentsService: CommentsService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
@@ -44,12 +45,19 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException(`Post with id ${postId} not found`);
     }
+
     const { content } = input;
 
-    const createdCommentId: string = await this.commentsService.create(
-      content,
-      { userId: new ObjectId().toString(), userLogin: 'login' },
-      postId,
+    const createdCommentId: string = await this.commandBus.execute<
+      CreateCommentCommand,
+      string
+    >(
+      new CreateCommentCommand(
+        content,
+        new ObjectId().toString(),
+        'login',
+        postId,
+      ),
     );
 
     return await this.commentsQueryRepository.getById(createdCommentId);

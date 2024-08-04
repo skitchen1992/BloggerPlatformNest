@@ -16,14 +16,25 @@ export class CommentsRepository {
   }
 
   public async update(id: string, data: UpdateCommentDto): Promise<boolean> {
-    const updateResult = await this.commentsModel.updateOne({ _id: id }, data);
+    try {
+      const updateResult = await this.commentsModel.updateOne(
+        { _id: id },
+        data,
+      );
 
-    return updateResult.modifiedCount === 1;
+      return updateResult.modifiedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async delete(id: string): Promise<boolean> {
-    const deleteResult = await this.commentsModel.deleteOne({ _id: id });
+    try {
+      const deleteResult = await this.commentsModel.deleteOne({ _id: id });
 
-    return deleteResult.deletedCount === 1;
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 }

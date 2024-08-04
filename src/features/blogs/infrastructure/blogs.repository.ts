@@ -14,20 +14,32 @@ export class BlogsRepository {
   }
 
   public async update(id: string, data: UpdateQuery<Blog>): Promise<boolean> {
-    const updatedResult = await this.blogModel.updateOne({ _id: id }, data);
+    try {
+      const updatedResult = await this.blogModel.updateOne({ _id: id }, data);
 
-    return updatedResult.modifiedCount === 1;
+      return updatedResult.modifiedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async delete(id: string): Promise<boolean> {
-    const deleteResult = await this.blogModel.deleteOne({ _id: id });
+    try {
+      const deleteResult = await this.blogModel.deleteOne({ _id: id });
 
-    return deleteResult.deletedCount === 1;
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
   public async isBlogExist(userId: string): Promise<boolean> {
-    const blog = await this.blogModel.countDocuments({ _id: userId }).lean();
+    try {
+      const blog = await this.blogModel.countDocuments({ _id: userId }).lean();
 
-    return Boolean(blog);
+      return Boolean(blog);
+    } catch (e) {
+      return false;
+    }
   }
 }

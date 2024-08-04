@@ -15,7 +15,8 @@ export class IsEmailExistConstrain implements ValidatorConstraintInterface {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async validate(value: any): Promise<boolean> {
-    return await this.usersRepository.isEmailExist(value);
+    const isEmailExist = await this.usersRepository.isEmailExist(value);
+    return !isEmailExist;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

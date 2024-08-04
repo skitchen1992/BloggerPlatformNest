@@ -20,19 +20,15 @@ export class UpdateBlogHandler
   async execute(command: UpdateBlogCommand): Promise<void> {
     const { id, name, description, websiteUrl } = command;
 
-    try {
-      const data: UpdateBlogDto = {
-        name,
-        description,
-        websiteUrl,
-      };
+    const data: UpdateBlogDto = {
+      name,
+      description,
+      websiteUrl,
+    };
 
-      const isUpdated: boolean = await this.blogsRepository.update(id, data);
+    const isUpdated: boolean = await this.blogsRepository.update(id, data);
 
-      if (!isUpdated) {
-        throw new NotFoundException(`Blog with id ${id} not found`);
-      }
-    } catch (e) {
+    if (!isUpdated) {
       throw new NotFoundException(`Blog with id ${id} not found`);
     }
   }

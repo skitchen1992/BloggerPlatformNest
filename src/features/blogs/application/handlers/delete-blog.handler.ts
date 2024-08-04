@@ -13,13 +13,10 @@ export class DeleteBlogHandler
   constructor(private readonly blogsRepository: BlogsRepository) {}
   async execute(command: DeleteBlogCommand): Promise<void> {
     const { id } = command;
-    try {
-      const isDeleted: boolean = await this.blogsRepository.delete(id);
 
-      if (!isDeleted) {
-        throw new NotFoundException(`Blog with id ${id} not found`);
-      }
-    } catch (e) {
+    const isDeleted: boolean = await this.blogsRepository.delete(id);
+
+    if (!isDeleted) {
       throw new NotFoundException(`Blog with id ${id} not found`);
     }
   }
