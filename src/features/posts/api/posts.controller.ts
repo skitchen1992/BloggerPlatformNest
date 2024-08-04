@@ -25,6 +25,7 @@ import { CreateCommentCommand } from '@features/posts/application/handlers/creat
 import { ObjectId } from 'mongodb';
 import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
+import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -112,7 +113,6 @@ export class PostsController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    //TODO: сделать middleware на валидность id
     const blog = await this.postsQueryRepository.getById(id);
 
     if (blog) {
@@ -127,17 +127,9 @@ export class PostsController {
   async update(@Param('id') id: string, @Body() input: UpdatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
-    const isUpdated: boolean = await this.postsService.update(
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
+    await this.commandBus.execute<UpdatePostCommand, void>(
+      new UpdatePostCommand(id, title, shortDescription, content, blogId),
     );
-
-    if (!isUpdated) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
   }
 
   @Delete(':id')

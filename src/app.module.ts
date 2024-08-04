@@ -67,6 +67,7 @@ import { UpdateCommentHandler } from '@features/comments/application/handlers/up
 import { DeleteCommentHandler } from '@features/comments/application/handlers/delete-comment.handler';
 import { CreateCommentHandler } from '@features/posts/application/handlers/create-comment.handler';
 import { CreatePostHandler } from '@features/posts/application/handlers/create-post.handler';
+import { UpdatePostHandler } from '@features/posts/application/handlers/update-post.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -94,6 +95,7 @@ const postsProviders: Provider[] = [
   PostsService,
   PostsQueryRepository,
   CreatePostHandler,
+  UpdatePostHandler,
 ];
 
 const commentsProviders: Provider[] = [
