@@ -34,8 +34,4 @@ export class CommentsService {
 
     return await this.commentsRepository.create(newComment);
   }
-
-  async delete(id: string): Promise<boolean> {
-    return await this.commentsRepository.delete(id);
-  }
 }
