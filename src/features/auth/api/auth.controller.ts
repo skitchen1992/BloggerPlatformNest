@@ -18,7 +18,7 @@ import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/regist
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LoginCommand } from '@features/auth/application/handlers/login.handler';
 import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
 import { PasswordRecoveryCommand } from '@features/auth/application/handlers/passport-recovery.handler';
@@ -26,7 +26,8 @@ import { NewPassportCommand } from '@features/auth/application/handlers/new-pass
 import { RegistrationConfirmationCommand } from '@features/auth/application/handlers/registration-confirmation.handler';
 import { RegistrationCommand } from '@features/auth/application/handlers/registration.handler';
 import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
-import { MeOutputDtoMapper } from '@features/auth/api/dto/output/me.output.dto';
+import { GetMeQuery } from '@features/auth/application/handlers/get-me.handler';
+import { MeOutputDto } from '@features/auth/api/dto/output/me.output.dto';
 
 // Tag для swagger
 @ApiTags('Auth')
@@ -34,6 +35,7 @@ import { MeOutputDtoMapper } from '@features/auth/api/dto/output/me.output.dto';
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly authService: AuthService,
   ) {}
 
@@ -105,6 +107,8 @@ export class AuthController {
   async me(@Req() request: Request) {
     const user = request.currentUser;
 
-    return MeOutputDtoMapper(user!);
+    return await this.queryBus.execute<GetMeQuery, MeOutputDto>(
+      new GetMeQuery(user!),
+    );
   }
 }

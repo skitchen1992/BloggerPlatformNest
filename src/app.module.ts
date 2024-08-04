@@ -72,6 +72,7 @@ import { DeletePostHandler } from '@features/posts/application/handlers/delete-p
 import { GetAllHandler } from '@features/blogs/application/handlers/get-all.handler';
 import { GetPostForBlogHandler } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
 import { GetBlogHandler } from '@features/blogs/application/handlers/get-blog.handler';
+import { GetMeHandler } from '@features/auth/application/handlers/get-me.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -128,6 +129,7 @@ const authProviders: Provider[] = [
   LoginHandler,
   PasswordRecoveryHandler,
   NewPassportHandler,
+  GetMeHandler,
 ];
 
 @Module({
