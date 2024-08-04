@@ -59,6 +59,7 @@ import { NewPassportHandler } from '@features/auth/application/handlers/new-pass
 import { RegistrationConfirmationHandler } from '@features/auth/application/handlers/registration-confirmation.handler';
 import { RegistrationHandler } from '@features/auth/application/handlers/registration.handler';
 import { RegistrationEmailResendingHandler } from '@features/auth/application/handlers/registration-email-resending.handler';
+import { GetAllHandler } from '@features/blogs/application/handlers/get-all.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -75,6 +76,7 @@ const blogsProviders: Provider[] = [
   BlogsRepository,
   BlogsQueryRepository,
   BlogsService,
+  GetAllHandler,
 ];
 
 const postsProviders: Provider[] = [

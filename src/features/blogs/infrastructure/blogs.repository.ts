@@ -24,4 +24,10 @@ export class BlogsRepository {
 
     return deleteResult.deletedCount === 1;
   }
+
+  public async isBlogExist(userId: string): Promise<boolean> {
+    const blog = await this.blogModel.countDocuments({ _id: userId }).lean();
+
+    return Boolean(blog);
+  }
 }

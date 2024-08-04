@@ -21,12 +21,16 @@ import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
 import { PostsService } from '@features/posts/application/posts.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetAllCommand } from '@features/blogs/application/handlers/get-all.handler';
+import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 
 // Tag для swagger
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
@@ -35,7 +39,10 @@ export class BlogsController {
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    return await this.blogsQueryRepository.getAll(query);
+    return await this.commandBus.execute<
+      GetAllCommand,
+      BlogOutputPaginationDto
+    >(new GetAllCommand(query));
   }
 
   @Post()
