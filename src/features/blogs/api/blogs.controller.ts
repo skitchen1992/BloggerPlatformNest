@@ -17,7 +17,10 @@ import { CreateBlogDto } from './dto/input/create-blog.input.dto';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
-import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import {
+  PostOutputPaginationDto,
+  PostQuery,
+} from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
@@ -26,6 +29,7 @@ import { UpdateBlogCommand } from '@features/blogs/application/handlers/update-b
 import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-blog.handler';
 import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handler';
 import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
+import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -40,7 +44,6 @@ export class BlogsController {
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    // return await this.blogsQueryRepository.getAll(query);
     return await this.queryBus.execute<GetAllQuery, BlogOutputPaginationDto>(
       new GetAllQuery(query),
     );
@@ -63,12 +66,10 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() query: PostQuery,
   ) {
-    const blog = await this.blogsQueryRepository.getById(blogId);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${blogId} not found`);
-    }
-    return await this.postsQueryRepository.getAll(query, { blogId });
+    return await this.queryBus.execute<
+      GetPostForBlogQuery,
+      PostOutputPaginationDto
+    >(new GetPostForBlogQuery(query, blogId));
   }
 
   @Post(':blogId/posts')
