@@ -66,6 +66,7 @@ import { DeleteBlogHandler } from '@features/blogs/application/handlers/delete-b
 import { UpdateCommentHandler } from '@features/comments/application/handlers/update-comment.handler';
 import { DeleteCommentHandler } from '@features/comments/application/handlers/delete-comment.handler';
 import { CreateCommentHandler } from '@features/posts/application/handlers/create-comment.handler';
+import { CreatePostHandler } from '@features/posts/application/handlers/create-post.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -92,6 +93,7 @@ const postsProviders: Provider[] = [
   PostsRepository,
   PostsService,
   PostsQueryRepository,
+  CreatePostHandler,
 ];
 
 const commentsProviders: Provider[] = [

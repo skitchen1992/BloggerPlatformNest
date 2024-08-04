@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '@features/comments/infrastructure/comments.repository';
-import { NotFoundException } from '@nestjs/common';
 import { Comment } from '@features/comments/domain/comment.entity';
 
 export class CreateCommentCommand {

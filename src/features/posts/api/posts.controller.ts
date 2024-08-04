@@ -23,6 +23,8 @@ import { CommentQuery } from '@features/comments/api/dto/output/comment.output.p
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
+import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
+import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -32,6 +34,7 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
@@ -85,11 +88,23 @@ export class PostsController {
   async create(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
-    const createdPostId: string = await this.postsService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
+    const blog = await this.blogsQueryRepository.getById(blogId);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
+    }
+
+    const createdPostId: string = await this.commandBus.execute<
+      CreatePostCommand,
+      string
+    >(
+      new CreatePostCommand(
+        title,
+        shortDescription,
+        content,
+        blogId,
+        blog.name,
+      ),
     );
 
     return await this.postsQueryRepository.getById(createdPostId);
