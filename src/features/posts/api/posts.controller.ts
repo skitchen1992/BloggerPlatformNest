@@ -26,6 +26,7 @@ import { ObjectId } from 'mongodb';
 import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
+import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -135,10 +136,8 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {
-    const isDeleted: boolean = await this.postsService.delete(id);
-
-    if (!isDeleted) {
-      throw new NotFoundException(`Post with id ${id} not found`);
-    }
+    await this.commandBus.execute<DeletePostCommand, void>(
+      new DeletePostCommand(id),
+    );
   }
 }
