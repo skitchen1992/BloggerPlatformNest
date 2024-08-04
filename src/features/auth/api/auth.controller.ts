@@ -23,6 +23,7 @@ import { LoginCommand } from '@features/auth/application/handlers/login.handler'
 import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
 import { PasswordRecoveryCommand } from '@features/auth/application/handlers/passport-recovery.handler';
 import { NewPassportCommand } from '@features/auth/application/handlers/new-passport.handler';
+import { RegistrationConfirmationCommand } from '@features/auth/application/handlers/registration-confirmation.handler';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -57,8 +58,6 @@ export class AuthController {
   async newPassword(@Body() input: NewPasswordDto) {
     const { newPassword, recoveryCode } = input;
 
-    // await this.authService.newPassword(newPassword, recoveryCode);
-
     await this.commandBus.execute<NewPassportCommand, void>(
       new NewPassportCommand(newPassword, recoveryCode),
     );
@@ -69,7 +68,9 @@ export class AuthController {
   async registrationConfirmation(@Body() input: RegistrationConfirmationDto) {
     const { code } = input;
 
-    await this.authService.registrationConfirmation(code);
+    await this.commandBus.execute<RegistrationConfirmationCommand, void>(
+      new RegistrationConfirmationCommand(code),
+    );
   }
 
   @Post('registration')

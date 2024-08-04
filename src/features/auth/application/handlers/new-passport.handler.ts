@@ -1,10 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import {
-  LoginOutputDto,
-  LoginOutputDtoMapper,
-} from '@features/auth/api/dto/output/login.output.dto';
+import { BadRequestException } from '@nestjs/common';
 import { AuthService } from '@features/auth/application/auth.service';
 import { fromUnixTimeToISO, getCurrentDate, isExpiredDate } from '@utils/dates';
 import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';

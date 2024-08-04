@@ -11,7 +11,6 @@ import {
 } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { JwtPayload } from 'jsonwebtoken';
-import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';
 import {
   MeOutputDto,
   MeOutputDtoMapper,
@@ -89,43 +88,6 @@ export class AuthService {
 
   async generatePasswordHash(password: string): Promise<string> {
     return await this.hashBuilder.hash(password);
-  }
-
-  public async registrationConfirmation(code: string): Promise<void> {
-    const user = await this.usersRepository.getUserByConfirmationCode(code);
-
-    if (!user) {
-      throw new BadRequestException({
-        message: 'Activation code is not correct',
-        key: 'code',
-      });
-    }
-
-    if (user.emailConfirmation?.isConfirmed) {
-      throw new BadRequestException({
-        message: 'Email already confirmed',
-        key: 'code',
-      });
-    }
-
-    if (
-      user.emailConfirmation?.expirationDate &&
-      isExpiredDate({
-        currentDate: getCurrentDate(),
-        expirationDate: user.emailConfirmation.expirationDate.toString(),
-      })
-    ) {
-      throw new BadRequestException({
-        message: 'Confirmation code expired',
-        key: 'code',
-      });
-    }
-
-    await this.usersRepository.updateUserFieldById(
-      user._id.toString(),
-      'emailConfirmation.isConfirmed',
-      true,
-    );
   }
 
   public async registrationEmailResending(email: string): Promise<void> {

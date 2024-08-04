@@ -56,6 +56,7 @@ import { DeleteUserHandler } from '@features/users/application/handlers/delete-u
 import { LoginHandler } from '@features/auth/application/handlers/login.handler';
 import { PasswordRecoveryHandler } from '@features/auth/application/handlers/passport-recovery.handler';
 import { NewPassportHandler } from '@features/auth/application/handlers/new-passport.handler';
+import { RegistrationConfirmationHandler } from '@features/auth/application/handlers/registration-confirmation.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -63,6 +64,7 @@ const usersProviders: Provider[] = [
   UsersQueryRepository,
   CreateUserHandler,
   DeleteUserHandler,
+  RegistrationConfirmationHandler,
 ];
 
 const blogsProviders: Provider[] = [
