@@ -19,11 +19,13 @@ import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.d
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
 import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
 import { UpdateBlogCommand } from '@features/blogs/application/handlers/update-blog.handler';
 import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-blog.handler';
+import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handler';
+import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -31,13 +33,17 @@ import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-b
 export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    return await this.blogsQueryRepository.getAll(query);
+    // return await this.blogsQueryRepository.getAll(query);
+    return await this.queryBus.execute<GetAllQuery, BlogOutputPaginationDto>(
+      new GetAllQuery(query),
+    );
   }
 
   @Post()
