@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
-import { User } from '@features/users/domain/user.entity';
 import { HashBuilder } from '@utils/hash-builder';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
-import { add, getCurrentDate, isExpiredDate } from '@utils/dates';
+import { getCurrentDate, isExpiredDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { JwtPayload } from 'jsonwebtoken';
 import {
@@ -45,50 +44,6 @@ export class AuthService {
 
   async generatePasswordHash(password: string): Promise<string> {
     return await this.hashBuilder.hash(password);
-  }
-
-  public async registrationEmailResending(email: string): Promise<void> {
-    const { user } = await this.usersRepository.getUserByLoginOrEmail(
-      email,
-      email,
-    );
-
-    if (!user) {
-      throw new BadRequestException({
-        message: 'Email not found',
-        key: 'email',
-      });
-    }
-
-    if (user.emailConfirmation?.isConfirmed) {
-      throw new BadRequestException({
-        message: 'Email already confirmed',
-        key: 'email',
-      });
-    }
-
-    if (
-      user.emailConfirmation?.expirationDate &&
-      isExpiredDate({
-        expirationDate: user.emailConfirmation.expirationDate.toString(),
-        currentDate: getCurrentDate(),
-      })
-    ) {
-      throw new BadRequestException({
-        message: 'Confirmation code expired',
-        key: 'code',
-      });
-    }
-
-    const confirmationCode = getUniqueId();
-
-    await this.usersRepository.updateUserFieldById(
-      user._id.toString(),
-      'emailConfirmation.confirmationCode',
-      confirmationCode,
-    );
-
-    await this.sendRegisterEmail(email, confirmationCode);
   }
 
   public async me(user: UserOutputDto): Promise<MeOutputDto> {

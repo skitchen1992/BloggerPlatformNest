@@ -25,6 +25,7 @@ import { PasswordRecoveryCommand } from '@features/auth/application/handlers/pas
 import { NewPassportCommand } from '@features/auth/application/handlers/new-passport.handler';
 import { RegistrationConfirmationCommand } from '@features/auth/application/handlers/registration-confirmation.handler';
 import { RegistrationCommand } from '@features/auth/application/handlers/registration.handler';
+import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -91,7 +92,9 @@ export class AuthController {
   ) {
     const { email } = input;
 
-    await this.authService.registrationEmailResending(email);
+    await this.commandBus.execute<RegistrationEmailResendingCommand, void>(
+      new RegistrationEmailResendingCommand(email),
+    );
   }
 
   @ApiSecurity('bearer')
