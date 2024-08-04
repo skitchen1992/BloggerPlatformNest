@@ -25,6 +25,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
 import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
 import { UpdateBlogCommand } from '@features/blogs/application/handlers/update-blog.handler';
+import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -121,10 +122,8 @@ export class BlogsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {
-    const isDeleted: boolean = await this.blogsService.delete(id);
-
-    if (!isDeleted) {
-      throw new NotFoundException(`Blog with id ${id} not found`);
-    }
+    await this.commandBus.execute<DeleteBlogCommand, void>(
+      new DeleteBlogCommand(id),
+    );
   }
 }
