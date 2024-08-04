@@ -26,6 +26,8 @@ import { NewPassportCommand } from '@features/auth/application/handlers/new-pass
 import { RegistrationConfirmationCommand } from '@features/auth/application/handlers/registration-confirmation.handler';
 import { RegistrationCommand } from '@features/auth/application/handlers/registration.handler';
 import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
+import { MeOutputDtoMapper } from '@features/auth/api/dto/output/me.output.dto';
+
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
@@ -102,6 +104,7 @@ export class AuthController {
   @Get('me')
   async me(@Req() request: Request) {
     const user = request.currentUser;
-    return await this.authService.me(user!);
+
+    return MeOutputDtoMapper(user!);
   }
 }

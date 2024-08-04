@@ -1,21 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { HashBuilder } from '@utils/hash-builder';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
-import { getCurrentDate, isExpiredDate } from '@utils/dates';
-import { getUniqueId } from '@utils/utils';
 import { JwtPayload } from 'jsonwebtoken';
-import {
-  MeOutputDto,
-  MeOutputDtoMapper,
-} from '@features/auth/api/dto/output/me.output.dto';
-import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersRepository: UsersRepository,
     private readonly hashBuilder: HashBuilder,
     protected readonly nodeMailer: NodeMailer,
     protected readonly jwtService: JwtService,
@@ -44,10 +35,6 @@ export class AuthService {
 
   async generatePasswordHash(password: string): Promise<string> {
     return await this.hashBuilder.hash(password);
-  }
-
-  public async me(user: UserOutputDto): Promise<MeOutputDto> {
-    return MeOutputDtoMapper(user);
   }
 
   public async getAccessToken(userId: string | null) {

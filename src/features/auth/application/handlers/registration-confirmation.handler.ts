@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { AuthService } from '@features/auth/application/auth.service';
 import { getCurrentDate, isExpiredDate } from '@utils/dates';
 
 export class RegistrationConfirmationCommand {
@@ -12,10 +11,7 @@ export class RegistrationConfirmationCommand {
 export class RegistrationConfirmationHandler
   implements ICommandHandler<RegistrationConfirmationCommand, void>
 {
-  constructor(
-    private readonly usersRepository: UsersRepository,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
   async execute(command: RegistrationConfirmationCommand): Promise<void> {
     const { code } = command;
 
