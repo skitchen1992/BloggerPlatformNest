@@ -60,6 +60,7 @@ import { RegistrationConfirmationHandler } from '@features/auth/application/hand
 import { RegistrationHandler } from '@features/auth/application/handlers/registration.handler';
 import { RegistrationEmailResendingHandler } from '@features/auth/application/handlers/registration-email-resending.handler';
 import { CreateBlogHandler } from '@features/blogs/application/handlers/create-blog.handler';
+import { CreatePostForBlogHandler } from '@features/blogs/application/handlers/create-post-for-blog.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -77,6 +78,7 @@ const blogsProviders: Provider[] = [
   BlogsQueryRepository,
   BlogsService,
   CreateBlogHandler,
+  CreatePostForBlogHandler,
 ];
 
 const postsProviders: Provider[] = [

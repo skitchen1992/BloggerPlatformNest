@@ -23,6 +23,7 @@ import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-
 import { PostsService } from '@features/posts/application/posts.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
+import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -76,13 +77,20 @@ export class BlogsController {
     if (!blog) {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
+
     const { title, shortDescription, content } = input;
 
-    const createdPostId: string = await this.postsService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
+    const createdPostId: string = await this.commandBus.execute<
+      CreatePostForBlogCommand,
+      string
+    >(
+      new CreatePostForBlogCommand(
+        title,
+        shortDescription,
+        content,
+        blogId,
+        blog.name,
+      ),
     );
 
     return await this.postsQueryRepository.getById(createdPostId);
