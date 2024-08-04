@@ -24,6 +24,7 @@ import { PostsService } from '@features/posts/application/posts.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
 import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
+import { UpdateBlogCommand } from '@features/blogs/application/handlers/update-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -98,7 +99,6 @@ export class BlogsController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    //TODO: сделать middleware на валидность id
     const blog = await this.blogsQueryRepository.getById(id);
 
     if (blog) {
@@ -113,16 +113,9 @@ export class BlogsController {
   async update(@Param('id') id: string, @Body() input: UpdateBlogDto) {
     const { name, description, websiteUrl } = input;
 
-    const isUpdated: boolean = await this.blogsService.update(
-      id,
-      name,
-      description,
-      websiteUrl,
+    await this.commandBus.execute<UpdateBlogCommand, void>(
+      new UpdateBlogCommand(id, name, description, websiteUrl),
     );
-
-    if (!isUpdated) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
   }
 
   @Delete(':id')

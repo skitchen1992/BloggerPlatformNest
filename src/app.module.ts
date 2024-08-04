@@ -61,6 +61,7 @@ import { RegistrationHandler } from '@features/auth/application/handlers/registr
 import { RegistrationEmailResendingHandler } from '@features/auth/application/handlers/registration-email-resending.handler';
 import { CreateBlogHandler } from '@features/blogs/application/handlers/create-blog.handler';
 import { CreatePostForBlogHandler } from '@features/blogs/application/handlers/create-post-for-blog.handler';
+import { UpdateBlogHandler } from '@features/blogs/application/handlers/update-blog.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -79,6 +80,7 @@ const blogsProviders: Provider[] = [
   BlogsService,
   CreateBlogHandler,
   CreatePostForBlogHandler,
+  UpdateBlogHandler,
 ];
 
 const postsProviders: Provider[] = [
