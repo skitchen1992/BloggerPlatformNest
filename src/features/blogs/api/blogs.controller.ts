@@ -22,8 +22,7 @@ import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
 import { PostsService } from '@features/posts/application/posts.service';
 import { CommandBus } from '@nestjs/cqrs';
-import { GetAllCommand } from '@features/blogs/application/handlers/get-all.handler';
-import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
+import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -39,21 +38,17 @@ export class BlogsController {
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    return await this.commandBus.execute<
-      GetAllCommand,
-      BlogOutputPaginationDto
-    >(new GetAllCommand(query));
+    return await this.blogsQueryRepository.getAll(query);
   }
 
   @Post()
   async create(@Body() input: CreateBlogDto) {
     const { name, description, websiteUrl } = input;
 
-    const createdBlogId: string = await this.blogsService.create(
-      name,
-      description,
-      websiteUrl,
-    );
+    const createdBlogId: string = await this.commandBus.execute<
+      CreateBlogCommand,
+      string
+    >(new CreateBlogCommand(name, description, websiteUrl));
 
     return await this.blogsQueryRepository.getById(createdBlogId);
   }
