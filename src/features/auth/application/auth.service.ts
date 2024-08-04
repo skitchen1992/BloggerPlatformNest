@@ -3,12 +3,7 @@ import { UsersRepository } from '@features/users/infrastructure/users.repository
 import { User } from '@features/users/domain/user.entity';
 import { HashBuilder } from '@utils/hash-builder';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
-import {
-  add,
-  fromUnixTimeToISO,
-  getCurrentDate,
-  isExpiredDate,
-} from '@utils/dates';
+import { add, getCurrentDate, isExpiredDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { JwtPayload } from 'jsonwebtoken';
 import {
@@ -32,44 +27,6 @@ export class AuthService {
     userPassword: string,
   ): Promise<boolean> {
     return this.hashBuilder.compare(password, userPassword);
-  }
-
-  public async registration(
-    login: string,
-    password: string,
-    email: string,
-  ): Promise<void> {
-    const { foundBy } = await this.usersRepository.getUserByLoginOrEmail(
-      login,
-      email,
-    );
-
-    if (foundBy) {
-      throw new BadRequestException({
-        message: 'User already exists',
-        key: foundBy,
-      });
-    }
-
-    const passwordHash = await this.hashBuilder.hash(password);
-
-    const confirmationCode = getUniqueId();
-
-    const newUser: User = {
-      login,
-      password: passwordHash,
-      email,
-      createdAt: new Date(),
-      emailConfirmation: {
-        isConfirmed: false,
-        confirmationCode,
-        expirationDate: add(new Date(), { hours: 1 }),
-      },
-    };
-
-    await this.usersRepository.create(newUser);
-
-    await this.sendRegisterEmail(email, confirmationCode);
   }
 
   public verifyRecoveryCode(recoveryCode: string) {

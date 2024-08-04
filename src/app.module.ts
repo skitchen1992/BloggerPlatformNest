@@ -57,6 +57,7 @@ import { LoginHandler } from '@features/auth/application/handlers/login.handler'
 import { PasswordRecoveryHandler } from '@features/auth/application/handlers/passport-recovery.handler';
 import { NewPassportHandler } from '@features/auth/application/handlers/new-passport.handler';
 import { RegistrationConfirmationHandler } from '@features/auth/application/handlers/registration-confirmation.handler';
+import { RegistrationHandler } from '@features/auth/application/handlers/registration.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -65,6 +66,7 @@ const usersProviders: Provider[] = [
   CreateUserHandler,
   DeleteUserHandler,
   RegistrationConfirmationHandler,
+  RegistrationHandler,
 ];
 
 const blogsProviders: Provider[] = [
