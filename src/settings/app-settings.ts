@@ -40,7 +40,7 @@
 //
 // class APISettings {
 //   // Application
-//   public readonly APP_PORT: number;
+//   public readonly PORT: number;
 //
 //   // Database
 //   public readonly MONGO_CONNECTION_URI: string;
@@ -62,7 +62,7 @@
 //
 //   constructor(private readonly envVariables: EnvironmentVariable) {
 //     // Application
-//     this.APP_PORT = this.getNumberOrDefault(envVariables.APP_PORT, 3004);
+//     this.PORT = this.getNumberOrDefault(envVariables.PORT, 3004);
 //
 //     // Database
 //     if (!envVariables.MONGO_CONNECTION_URI) {

@@ -1,12 +1,11 @@
 import { EnvironmentVariable } from '@settings/configuration';
-import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class APISettings {
   constructor(private readonly envVariables: EnvironmentVariable) {}
   // Application
   @IsNumber()
-  @IsOptional()
-  public readonly APP_PORT: number = Number(this.envVariables.APP_PORT);
+  public readonly PORT: number = Number(this.envVariables.PORT);
 
   // Database
   @IsString()
