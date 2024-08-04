@@ -71,6 +71,7 @@ import { UpdatePostHandler } from '@features/posts/application/handlers/update-p
 import { DeletePostHandler } from '@features/posts/application/handlers/delete-post.handler';
 import { GetAllHandler } from '@features/blogs/application/handlers/get-all.handler';
 import { GetPostForBlogHandler } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
+import { GetBlogHandler } from '@features/blogs/application/handlers/get-blog.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -93,6 +94,7 @@ const blogsProviders: Provider[] = [
   DeleteBlogHandler,
   GetAllHandler,
   GetPostForBlogHandler,
+  GetBlogHandler,
 ];
 
 const postsProviders: Provider[] = [

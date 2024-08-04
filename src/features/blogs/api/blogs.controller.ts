@@ -6,7 +6,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -30,6 +29,7 @@ import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-b
 import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handler';
 import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
+import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -77,39 +77,21 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Body() input: CreatePostForBlogDto,
   ) {
-    const blog = await this.blogsQueryRepository.getById(blogId);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${blogId} not found`);
-    }
-
     const { title, shortDescription, content } = input;
 
     const createdPostId: string = await this.commandBus.execute<
       CreatePostForBlogCommand,
       string
-    >(
-      new CreatePostForBlogCommand(
-        title,
-        shortDescription,
-        content,
-        blogId,
-        blog.name,
-      ),
-    );
+    >(new CreatePostForBlogCommand(title, shortDescription, content, blogId));
 
     return await this.postsQueryRepository.getById(createdPostId);
   }
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    const blog = await this.blogsQueryRepository.getById(id);
-
-    if (blog) {
-      return blog;
-    } else {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    return await this.queryBus.execute<GetBlogQuery, PostOutputPaginationDto>(
+      new GetBlogQuery(id),
+    );
   }
 
   @Put(':id')

@@ -1,11 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Blog, BlogModelType } from '../domain/blog.entity';
+import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
 import { UpdateQuery } from 'mongoose';
 
 @Injectable()
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: BlogModelType) {}
+
+  public async get(id: string): Promise<BlogDocument | null> {
+    try {
+      const blog = await this.blogModel.findById(id).lean();
+
+      if (!blog) {
+        return null;
+      }
+
+      return blog;
+    } catch (e) {
+      return null;
+    }
+  }
 
   public async create(newBlog: Blog): Promise<string> {
     const insertResult = await this.blogModel.insertMany([newBlog]);
