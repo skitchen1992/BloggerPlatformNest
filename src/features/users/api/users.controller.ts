@@ -11,14 +11,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { CreateUserDto } from './dto/input/create-user.input.dto';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '@features/users/application/handlers/create-user.handler';
 import { DeleteUserCommand } from '@features/users/application/handlers/delete-user.handler';
-import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 import { GetAllUsersQuery } from '@features/users/application/handlers/get-all-users.handler';
 import { GetUserQuery } from '@features/users/application/handlers/get-user.handler';

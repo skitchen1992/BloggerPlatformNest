@@ -1,4 +1,4 @@
-import { CommandHandler, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import {
   CommentOutputPaginationDto,
