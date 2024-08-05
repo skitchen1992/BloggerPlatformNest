@@ -6,15 +6,15 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Put,
 } from '@nestjs/common';
-import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import { UpdateCommentDto } from '@features/comments/api/dto/input/update-comment.input.dto';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '@features/comments/application/handlers/update-comment.handler';
 import { DeleteCommentCommand } from '@features/comments/application/handlers/delete-comment.handler';
+import { GetCommentQuery } from '@features/comments/application/handlers/get-comment.handler';
+import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 
 // Tag для swagger
 @ApiTags('Comments')
@@ -22,18 +22,14 @@ import { DeleteCommentCommand } from '@features/comments/application/handlers/de
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    const comment = await this.commentsQueryRepository.getById(id);
-
-    if (comment) {
-      return comment;
-    } else {
-      throw new NotFoundException(`Comment with id ${id} not found`);
-    }
+    return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
+      new GetCommentQuery(id),
+    );
   }
 
   @Put(':id')

@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
-import { AuthService } from '../application/auth.service';
 import { LoginDto } from '@features/auth/api/dto/input/login.input.dto';
 import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recovery.input.dto';
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
@@ -36,7 +35,6 @@ export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly authService: AuthService,
   ) {}
 
   @Post('login')

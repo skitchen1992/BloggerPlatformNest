@@ -74,6 +74,7 @@ import { GetPostForBlogHandler } from '@features/blogs/application/handlers/get-
 import { GetBlogHandler } from '@features/blogs/application/handlers/get-blog.handler';
 import { GetMeHandler } from '@features/auth/application/handlers/get-me.handler';
 import { GetPostHandler } from '@features/blogs/application/handlers/get-post.handler';
+import { GetCommentHandler } from '@features/comments/application/handlers/get-comment.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -116,6 +117,7 @@ const commentsProviders: Provider[] = [
   UpdateCommentHandler,
   DeleteCommentHandler,
   CreateCommentHandler,
+  GetCommentHandler,
 ];
 
 const basesProviders: Provider[] = [
