@@ -11,7 +11,6 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import { CreateBlogDto } from './dto/input/create-blog.input.dto';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
@@ -30,6 +29,7 @@ import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handle
 import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
 import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
+import { GetPostQuery } from '@features/blogs/application/handlers/get-post.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -38,8 +38,6 @@ export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Get()
@@ -58,7 +56,9 @@ export class BlogsController {
       string
     >(new CreateBlogCommand(name, description, websiteUrl));
 
-    return await this.blogsQueryRepository.getById(createdBlogId);
+    return await this.queryBus.execute<GetBlogQuery, PostOutputPaginationDto>(
+      new GetBlogQuery(createdBlogId),
+    );
   }
 
   @Get(':blogId/posts')
@@ -84,7 +84,9 @@ export class BlogsController {
       string
     >(new CreatePostForBlogCommand(title, shortDescription, content, blogId));
 
-    return await this.postsQueryRepository.getById(createdPostId);
+    return await this.queryBus.execute<GetPostQuery, PostsQueryRepository>(
+      new GetPostQuery(createdPostId),
+    );
   }
 
   @Get(':id')
