@@ -81,6 +81,7 @@ import { GetCommentsForPostHandler } from '@features/posts/application/handlers/
 import { GetAllPostsHandler } from '@features/posts/application/handlers/get-all-posts.handler';
 import { IsBlogExistCommand } from '@features/posts/application/handlers/is-blog-exist.handler';
 import { GetAllUsersHandler } from '@features/users/application/handlers/get-all-users.handler';
+import { GetUserHandler } from '@features/users/application/handlers/get-user.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -92,6 +93,7 @@ const usersProviders: Provider[] = [
   RegistrationHandler,
   RegistrationEmailResendingHandler,
   GetAllUsersHandler,
+  GetUserHandler,
 ];
 
 const blogsProviders: Provider[] = [

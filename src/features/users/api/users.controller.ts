@@ -21,6 +21,8 @@ import { DeleteUserCommand } from '@features/users/application/handlers/delete-u
 import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 import { GetAllUsersQuery } from '@features/users/application/handlers/get-all-users.handler';
+import { GetUserQuery } from '@features/users/application/handlers/get-user.handler';
+import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
 
 // Tag для swagger
 @ApiTags('Users')
@@ -49,7 +51,9 @@ export class UsersController {
       string
     >(new CreateUserCommand(login, password, email));
 
-    return await this.usersQueryRepository.getById(createdUserId);
+    return await this.queryBus.execute<GetUserQuery, UserOutputDto>(
+      new GetUserQuery(createdUserId),
+    );
   }
 
   @Delete(':id')
