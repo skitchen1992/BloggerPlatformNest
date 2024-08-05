@@ -6,14 +6,12 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
-import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 import {
   PostOutputPaginationDto,
@@ -27,7 +25,6 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
-import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
 import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
@@ -46,8 +43,6 @@ export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
   ) {}
 
   @Post(':postId/comments')
@@ -117,13 +112,9 @@ export class PostsController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    const blog = await this.postsQueryRepository.getById(id);
-
-    if (blog) {
-      return blog;
-    } else {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
+      new GetPostQuery(id),
+    );
   }
 
   @Put(':id')

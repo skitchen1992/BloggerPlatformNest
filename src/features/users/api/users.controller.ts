@@ -15,9 +15,12 @@ import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { CreateUserDto } from './dto/input/create-user.input.dto';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '@features/users/application/handlers/create-user.handler';
 import { DeleteUserCommand } from '@features/users/application/handlers/delete-user.handler';
+import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
+import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
+import { GetAllUsersQuery } from '@features/users/application/handlers/get-all-users.handler';
 
 // Tag для swagger
 @ApiTags('Users')
@@ -27,12 +30,14 @@ import { DeleteUserCommand } from '@features/users/application/handlers/delete-u
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    return await this.usersQueryRepository.getAll(query);
+    return await this.queryBus.execute<GetAllUsersQuery, CommentOutputDto>(
+      new GetAllUsersQuery(query),
+    );
   }
 
   @Post()
