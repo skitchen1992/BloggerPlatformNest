@@ -13,20 +13,22 @@ import {
   Query,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
-import { PostsService } from '@features/posts/application/posts.service';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import { CommentQuery } from '@features/comments/api/dto/output/comment.output.pagination.dto';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
 import { BlogsQueryRepository } from '@features/blogs/infrastructure/blogs.query-repository';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
 import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
+import { IsPostExistCommand } from '@features/posts/application/handlers/is-post-exist.handler';
+import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
+import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -34,7 +36,7 @@ import { DeletePostCommand } from '@features/posts/application/handlers/delete-p
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly postsService: PostsService,
+    private readonly queryBus: QueryBus,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
@@ -45,11 +47,9 @@ export class PostsController {
     @Body() input: CreateCommentDto,
     @Param('postId') postId: string,
   ) {
-    const post = await this.postsQueryRepository.getById(postId);
-
-    if (!post) {
-      throw new NotFoundException(`Post with id ${postId} not found`);
-    }
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
+    );
 
     const { content } = input;
 
@@ -65,7 +65,9 @@ export class PostsController {
       ),
     );
 
-    return await this.commentsQueryRepository.getById(createdCommentId);
+    return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
+      new GetCommentQuery(createdCommentId),
+    );
   }
 
   @Get(':postId/comments')

@@ -75,6 +75,8 @@ import { GetBlogHandler } from '@features/blogs/application/handlers/get-blog.ha
 import { GetMeHandler } from '@features/auth/application/handlers/get-me.handler';
 import { GetPostHandler } from '@features/blogs/application/handlers/get-post.handler';
 import { GetCommentHandler } from '@features/comments/application/handlers/get-comment.handler';
+import { IsPostExistHandler } from '@features/posts/application/handlers/is-post-exist.handler';
+import { GetCommentForPostHandler } from '@features/posts/application/handlers/get-comment.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -108,6 +110,8 @@ const postsProviders: Provider[] = [
   UpdatePostHandler,
   DeletePostHandler,
   GetPostHandler,
+  IsPostExistHandler,
+  GetCommentForPostHandler,
 ];
 
 const commentsProviders: Provider[] = [
