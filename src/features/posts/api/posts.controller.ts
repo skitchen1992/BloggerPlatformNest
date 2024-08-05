@@ -20,7 +20,6 @@ import {
   PostQuery,
 } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
-import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import {
   CommentOutputPaginationDto,
   CommentQuery,
@@ -37,6 +36,8 @@ import { GetCommentQuery } from '@features/posts/application/handlers/get-commen
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 import { GetCommentsForPostQuery } from '@features/posts/application/handlers/get-comments-for-post.handler';
 import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-posts.handler';
+import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
+import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -104,26 +105,14 @@ export class PostsController {
   async create(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
-    const blog = await this.blogsQueryRepository.getById(blogId);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${blogId} not found`);
-    }
-
     const createdPostId: string = await this.commandBus.execute<
       CreatePostCommand,
       string
-    >(
-      new CreatePostCommand(
-        title,
-        shortDescription,
-        content,
-        blogId,
-        blog.name,
-      ),
-    );
+    >(new CreatePostCommand(title, shortDescription, content, blogId));
 
-    return await this.postsQueryRepository.getById(createdPostId);
+    return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
+      new GetPostQuery(createdPostId),
+    );
   }
 
   @Get(':id')
