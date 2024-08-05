@@ -23,7 +23,7 @@ export class GetCommentsForPostHandler
     command: GetCommentsForPostQuery,
   ): Promise<CommentOutputPaginationDto> {
     const { postId, query } = command;
-    console.log('test', postId, query);
+
     return await this.commentsQueryRepository.getAll(query, { postId });
   }
 }

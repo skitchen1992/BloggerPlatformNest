@@ -15,7 +15,10 @@ import {
 import { CreatePostDto } from './dto/input/create-post.input.dto';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
-import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import {
+  PostOutputPaginationDto,
+  PostQuery,
+} from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
 import {
@@ -33,6 +36,7 @@ import { IsPostExistCommand } from '@features/posts/application/handlers/is-post
 import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 import { GetCommentsForPostQuery } from '@features/posts/application/handlers/get-comments-for-post.handler';
+import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-posts.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -90,7 +94,10 @@ export class PostsController {
 
   @Get()
   async getAll(@Query() query: PostQuery) {
-    return await this.postsQueryRepository.getAll(query);
+    return await this.queryBus.execute<
+      GetAllPostQuery,
+      PostOutputPaginationDto
+    >(new GetAllPostQuery(query));
   }
 
   @Post()
