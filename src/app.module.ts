@@ -77,6 +77,7 @@ import { GetPostHandler } from '@features/blogs/application/handlers/get-post.ha
 import { GetCommentHandler } from '@features/comments/application/handlers/get-comment.handler';
 import { IsPostExistHandler } from '@features/posts/application/handlers/is-post-exist.handler';
 import { GetCommentForPostHandler } from '@features/posts/application/handlers/get-comment.handler';
+import { GetCommentsForPostHandler } from '@features/posts/application/handlers/get-comments-for-post.handler';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -112,6 +113,7 @@ const postsProviders: Provider[] = [
   GetPostHandler,
   IsPostExistHandler,
   GetCommentForPostHandler,
+  GetCommentsForPostHandler,
 ];
 
 const commentsProviders: Provider[] = [

@@ -18,7 +18,10 @@ import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.d
 import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
 import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
-import { CommentQuery } from '@features/comments/api/dto/output/comment.output.pagination.dto';
+import {
+  CommentOutputPaginationDto,
+  CommentQuery,
+} from '@features/comments/api/dto/output/comment.output.pagination.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
@@ -29,6 +32,7 @@ import { DeletePostCommand } from '@features/posts/application/handlers/delete-p
 import { IsPostExistCommand } from '@features/posts/application/handlers/is-post-exist.handler';
 import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
+import { GetCommentsForPostQuery } from '@features/posts/application/handlers/get-comments-for-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -39,7 +43,6 @@ export class PostsController {
     private readonly queryBus: QueryBus,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
   @Post(':postId/comments')
@@ -75,12 +78,14 @@ export class PostsController {
     @Query() query: CommentQuery,
     @Param('postId') postId: string,
   ) {
-    const post = await this.postsQueryRepository.getById(postId);
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
+    );
 
-    if (!post) {
-      throw new NotFoundException(`Post with id ${postId} not found`);
-    }
-    return await this.commentsQueryRepository.getAll(query, { postId });
+    return await this.queryBus.execute<
+      GetCommentsForPostQuery,
+      CommentOutputPaginationDto
+    >(new GetCommentsForPostQuery(postId, query));
   }
 
   @Get()
