@@ -9,7 +9,6 @@ import configuration, {
 } from '@settings/configuration';
 import { EnvironmentsEnum } from '@settings/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { UsersModule } from '@features/users/users.module';
 import { SharedModule } from './shared.module';
 import { AuthModule } from '@features/auth/auth.module';
