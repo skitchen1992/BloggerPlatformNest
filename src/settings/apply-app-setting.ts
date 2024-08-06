@@ -7,7 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggerMiddlewareFunc } from '@infrastructure/middlewares/logger.middleware';
 import { HttpExceptionFilter } from '@infrastructure/exception-filters/http-exception-filter';
 import { useContainer } from 'class-validator';
-import { AppModule } from '../app.module';
+import { AppModule } from '../modules/app.module';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '@settings/configuration';
 

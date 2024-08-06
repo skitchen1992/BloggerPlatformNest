@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src/modules/app.module';
 import mongoose, { Model } from 'mongoose';
 import { User, UserDocument } from '@features/users/domain/user.entity';
 import { applyAppSettings } from '@settings/apply-app-setting';
