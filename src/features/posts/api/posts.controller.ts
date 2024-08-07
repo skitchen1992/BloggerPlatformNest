@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
@@ -35,6 +36,7 @@ import { GetCommentsForPostQuery } from '@features/posts/application/handlers/ge
 import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-posts.handler';
 import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
 import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
+import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -45,6 +47,8 @@ export class PostsController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
   @Post(':postId/comments')
   async createComment(
     @Body() input: CreateCommentDto,
@@ -96,8 +100,10 @@ export class PostsController {
     >(new GetAllPostQuery(query));
   }
 
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() input: CreatePostDto) {
+  async createPost(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     const createdPostId: string = await this.commandBus.execute<
@@ -111,15 +117,17 @@ export class PostsController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  async getPostById(@Param('id') id: string) {
     return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
       new GetPostQuery(id),
     );
   }
 
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: UpdatePostDto) {
+  async updatePost(@Param('id') id: string, @Body() input: UpdatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     await this.commandBus.execute<UpdatePostCommand, void>(
@@ -127,9 +135,11 @@ export class PostsController {
     );
   }
 
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string) {
+  async deletePost(@Param('id') id: string) {
     await this.commandBus.execute<DeletePostCommand, void>(
       new DeletePostCommand(id),
     );

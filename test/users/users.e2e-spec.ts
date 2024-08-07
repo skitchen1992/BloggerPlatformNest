@@ -287,7 +287,7 @@ describe('Users (e2e) POST', () => {
 });
 
 describe('Users (e2e) DELETE', () => {
-  it('Should delete user', async () => {
+  it('Should deletePost user', async () => {
     const userList = await mockUserModel.insertMany(
       testSeeder.createUserListDto(2),
     );
