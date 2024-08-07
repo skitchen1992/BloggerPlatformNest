@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
@@ -15,7 +16,7 @@ import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recov
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
 import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/registration-confirmation.input.dto';
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LoginCommand } from '@features/auth/application/handlers/login.handler';
@@ -39,11 +40,14 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() input: LoginDto) {
+  async login(
+    @Body() input: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { loginOrEmail, password } = input;
 
     return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
-      new LoginCommand(loginOrEmail, password),
+      new LoginCommand(loginOrEmail, password, res),
     );
   }
 

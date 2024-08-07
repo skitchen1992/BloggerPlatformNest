@@ -7,6 +7,7 @@ import { JwtStrategy } from '@infrastructure/strategies/jwt.strategy';
 import { UsersModule } from '@features/users/users.module';
 import { IsLoginExistConstrain } from '@infrastructure/decorators/validate/is-login-exist.decorator';
 import { IsEmailExistConstrain } from '@infrastructure/decorators/validate/is-email-exist.decorator';
+import { CookieService } from '@infrastructure/servises/cookie/cookie.service';
 
 const basesProviders: Provider[] = [
   HashBuilder,
@@ -14,6 +15,7 @@ const basesProviders: Provider[] = [
   NodeMailer,
   BasicStrategy,
   JwtStrategy,
+  CookieService,
   IsLoginExistConstrain,
   IsEmailExistConstrain,
 ];
