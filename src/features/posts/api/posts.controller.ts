@@ -6,32 +6,43 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
-import { PostsService } from '@features/posts/application/posts.service';
-import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
-import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import {
+  PostOutputPaginationDto,
+  PostQuery,
+} from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreateCommentDto } from '@features/comments/api/dto/input/create-comment.input.dto';
-import { CommentsService } from '@features/comments/application/comments.service';
-import { CommentsQueryRepository } from '@features/comments/infrastructure/comments.query-repository';
+import {
+  CommentOutputPaginationDto,
+  CommentQuery,
+} from '@features/comments/api/dto/output/comment.output.pagination.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
-import { CommentQuery } from '@features/comments/api/dto/output/comment.output.pagination.dto';
+import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
+import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
+import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
+import { IsPostExistCommand } from '@features/posts/application/handlers/is-post-exist.handler';
+import { GetCommentQuery } from '@features/posts/application/handlers/get-comment.handler';
+import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
+import { GetCommentsForPostQuery } from '@features/posts/application/handlers/get-comments-for-post.handler';
+import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-posts.handler';
+import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
+import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
 
 // Tag для swagger
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsService: PostsService,
-    private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly commentsService: CommentsService,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post(':postId/comments')
@@ -39,20 +50,27 @@ export class PostsController {
     @Body() input: CreateCommentDto,
     @Param('postId') postId: string,
   ) {
-    const post = await this.postsQueryRepository.getById(postId);
-
-    if (!post) {
-      throw new NotFoundException(`Post with id ${postId} not found`);
-    }
-    const { content } = input;
-
-    const createdCommentId: string = await this.commentsService.create(
-      content,
-      { userId: new ObjectId().toString(), userLogin: 'login' },
-      postId,
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
     );
 
-    return await this.commentsQueryRepository.getById(createdCommentId);
+    const { content } = input;
+
+    const createdCommentId: string = await this.commandBus.execute<
+      CreateCommentCommand,
+      string
+    >(
+      new CreateCommentCommand(
+        content,
+        new ObjectId().toString(),
+        'login',
+        postId,
+      ),
+    );
+
+    return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
+      new GetCommentQuery(createdCommentId),
+    );
   }
 
   @Get(':postId/comments')
@@ -60,43 +78,43 @@ export class PostsController {
     @Query() query: CommentQuery,
     @Param('postId') postId: string,
   ) {
-    const post = await this.postsQueryRepository.getById(postId);
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
+    );
 
-    if (!post) {
-      throw new NotFoundException(`Post with id ${postId} not found`);
-    }
-    return await this.commentsQueryRepository.getAll(query, { postId });
+    return await this.queryBus.execute<
+      GetCommentsForPostQuery,
+      CommentOutputPaginationDto
+    >(new GetCommentsForPostQuery(postId, query));
   }
 
   @Get()
   async getAll(@Query() query: PostQuery) {
-    return await this.postsQueryRepository.getAll(query);
+    return await this.queryBus.execute<
+      GetAllPostQuery,
+      PostOutputPaginationDto
+    >(new GetAllPostQuery(query));
   }
 
   @Post()
   async create(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
-    const createdPostId: string = await this.postsService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const createdPostId: string = await this.commandBus.execute<
+      CreatePostCommand,
+      string
+    >(new CreatePostCommand(title, shortDescription, content, blogId));
 
-    return await this.postsQueryRepository.getById(createdPostId);
+    return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
+      new GetPostQuery(createdPostId),
+    );
   }
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    //TODO: сделать middleware на валидность id
-    const blog = await this.postsQueryRepository.getById(id);
-
-    if (blog) {
-      return blog;
-    } else {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
+      new GetPostQuery(id),
+    );
   }
 
   @Put(':id')
@@ -104,26 +122,16 @@ export class PostsController {
   async update(@Param('id') id: string, @Body() input: UpdatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
-    const isUpdated: boolean = await this.postsService.update(
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
+    await this.commandBus.execute<UpdatePostCommand, void>(
+      new UpdatePostCommand(id, title, shortDescription, content, blogId),
     );
-
-    if (!isUpdated) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {
-    const isDeleted: boolean = await this.postsService.delete(id);
-
-    if (!isDeleted) {
-      throw new NotFoundException(`Post with id ${id} not found`);
-    }
+    await this.commandBus.execute<DeletePostCommand, void>(
+      new DeletePostCommand(id),
+    );
   }
 }

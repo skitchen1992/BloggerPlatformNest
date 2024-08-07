@@ -1,18 +1,23 @@
 import nodemailer from 'nodemailer';
-import { appSettings } from '@settings/app-settings';
 import { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '@settings/configuration';
 
 @Injectable()
 export class NodeMailer {
   private transporter: nodemailer.Transporter<SentMessageInfo>;
 
-  constructor() {
+  constructor(
+    private readonly configService: ConfigService<ConfigurationType, true>,
+  ) {
+    const apiSettings = configService.get('apiSettings', { infer: true });
+
     this.transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: appSettings.api.EMAIL_USER,
-        pass: appSettings.api.EMAIL_PASS,
+        user: apiSettings.EMAIL_USER,
+        pass: apiSettings.EMAIL_PASS,
       },
     });
   }
@@ -23,8 +28,10 @@ export class NodeMailer {
     text: string,
     html: string,
   ): Promise<void> {
+    const apiSettings = this.configService.get('apiSettings', { infer: true });
+
     const mailOptions = {
-      from: `"Nikita" <${appSettings.api.EMAIL_USER}>`,
+      from: `"Nikita" <${apiSettings.EMAIL_USER}>`,
       to,
       subject,
       text,

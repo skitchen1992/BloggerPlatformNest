@@ -20,13 +20,17 @@ export class PostsQueryRepository {
   ) {}
 
   public async getById(postId: string): Promise<PostOutputDto | null> {
-    const post = await this.postModel.findById(postId).lean();
+    try {
+      const post = await this.postModel.findById(postId).lean();
 
-    if (!post) {
+      if (!post) {
+        return null;
+      }
+
+      return PostOutputDtoMapper(post);
+    } catch (e) {
       return null;
     }
-
-    return PostOutputDtoMapper(post);
   }
 
   public async getAll(

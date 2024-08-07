@@ -1,7 +1,6 @@
 import request from 'supertest';
 import { createAuthorizationHeader } from '../utils/test-helpers';
-import { appSettings } from '@settings/app-settings';
-import { app, mockUserModel } from '../jest.setup';
+import { apiSettings, app, mockUserModel } from '../jest.setup';
 import { HttpStatus } from '@nestjs/common';
 import { testSeeder } from '../utils/test.seeder';
 import { UserOutputDtoMapper } from '@features/users/api/dto/output/user.output.dto';
@@ -22,8 +21,8 @@ describe('Users (e2e) GET', () => {
       .get(`${APP_PREFIX}/users`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.OK);
@@ -46,8 +45,8 @@ describe('Users (e2e) GET', () => {
       .get(`${APP_PREFIX}/users/?pageSize=1&pageNumber=2`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.OK);
@@ -70,8 +69,8 @@ describe('Users (e2e) GET', () => {
       .get(`${APP_PREFIX}/users/?searchLoginTerm=test0`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.OK);
@@ -94,8 +93,8 @@ describe('Users (e2e) GET', () => {
       .get(`${APP_PREFIX}/users/?searchEmailTerm=test0@gmail.com`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.OK);
@@ -147,8 +146,8 @@ describe('Users (e2e) GET', () => {
       )
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.OK);
@@ -226,8 +225,8 @@ describe('Users (e2e) POST', () => {
       .post(`${APP_PREFIX}/users`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .send(user)
@@ -246,8 +245,8 @@ describe('Users (e2e) POST', () => {
       .post(`${APP_PREFIX}/users`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .send(data.dataSetNewUser1)
@@ -261,8 +260,8 @@ describe('Users (e2e) POST', () => {
       .post(`${APP_PREFIX}/users`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .send(data.dataSetNewUser2)
@@ -276,8 +275,8 @@ describe('Users (e2e) POST', () => {
       .post(`${APP_PREFIX}/users`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .send(data.dataSetNewUser3)
@@ -299,8 +298,8 @@ describe('Users (e2e) DELETE', () => {
       .delete(`${APP_PREFIX}/users/${userId}`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.NO_CONTENT);
@@ -313,8 +312,8 @@ describe('Users (e2e) DELETE', () => {
       .delete(`${APP_PREFIX}/users/${ID}`)
       .set(
         createAuthorizationHeader(
-          appSettings.api.ADMIN_AUTH_USERNAME,
-          appSettings.api.ADMIN_AUTH_PASSWORD,
+          apiSettings.ADMIN_AUTH_USERNAME,
+          apiSettings.ADMIN_AUTH_PASSWORD,
         ),
       )
       .expect(HttpStatus.NOT_FOUND);

@@ -6,49 +6,59 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import { CreateBlogDto } from './dto/input/create-blog.input.dto';
-import { BlogsService } from '../application/blogs.service';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
 import { UpdateBlogDto } from '@features/blogs/api/dto/input/update-blog.input.dto';
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
-import { PostQuery } from '@features/posts/api/dto/output/post.output.pagination.dto';
+import {
+  PostOutputPaginationDto,
+  PostQuery,
+} from '@features/posts/api/dto/output/post.output.pagination.dto';
 import { CreatePostForBlogDto } from '@features/blogs/api/dto/input/create-post-for-blog.input.dto';
-import { PostsService } from '@features/posts/application/posts.service';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '@features/blogs/application/handlers/create-blog.handler';
+import { CreatePostForBlogCommand } from '@features/blogs/application/handlers/create-post-for-blog.handler';
+import { UpdateBlogCommand } from '@features/blogs/application/handlers/update-blog.handler';
+import { DeleteBlogCommand } from '@features/blogs/application/handlers/delete-blog.handler';
+import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handler';
+import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
+import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
+import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
+import { GetPostQuery } from '@features/blogs/application/handlers/get-post.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsService: BlogsService,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly postsService: PostsService,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
   async getAll(@Query() query: UsersQuery) {
-    return await this.blogsQueryRepository.getAll(query);
+    return await this.queryBus.execute<GetAllQuery, BlogOutputPaginationDto>(
+      new GetAllQuery(query),
+    );
   }
 
   @Post()
   async create(@Body() input: CreateBlogDto) {
     const { name, description, websiteUrl } = input;
 
-    const createdBlogId: string = await this.blogsService.create(
-      name,
-      description,
-      websiteUrl,
-    );
+    const createdBlogId: string = await this.commandBus.execute<
+      CreateBlogCommand,
+      string
+    >(new CreateBlogCommand(name, description, websiteUrl));
 
-    return await this.blogsQueryRepository.getById(createdBlogId);
+    return await this.queryBus.execute<GetBlogQuery, PostOutputPaginationDto>(
+      new GetBlogQuery(createdBlogId),
+    );
   }
 
   @Get(':blogId/posts')
@@ -56,12 +66,10 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() query: PostQuery,
   ) {
-    const blog = await this.blogsQueryRepository.getById(blogId);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${blogId} not found`);
-    }
-    return await this.postsQueryRepository.getAll(query, { blogId });
+    return await this.queryBus.execute<
+      GetPostForBlogQuery,
+      PostOutputPaginationDto
+    >(new GetPostForBlogQuery(query, blogId));
   }
 
   @Post(':blogId/posts')
@@ -69,33 +77,23 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Body() input: CreatePostForBlogDto,
   ) {
-    const blog = await this.blogsQueryRepository.getById(blogId);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${blogId} not found`);
-    }
     const { title, shortDescription, content } = input;
 
-    const createdPostId: string = await this.postsService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const createdPostId: string = await this.commandBus.execute<
+      CreatePostForBlogCommand,
+      string
+    >(new CreatePostForBlogCommand(title, shortDescription, content, blogId));
 
-    return await this.postsQueryRepository.getById(createdPostId);
+    return await this.queryBus.execute<GetPostQuery, PostsQueryRepository>(
+      new GetPostQuery(createdPostId),
+    );
   }
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    //TODO: сделать middleware на валидность id
-    const blog = await this.blogsQueryRepository.getById(id);
-
-    if (blog) {
-      return blog;
-    } else {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    return await this.queryBus.execute<GetBlogQuery, PostOutputPaginationDto>(
+      new GetBlogQuery(id),
+    );
   }
 
   @Put(':id')
@@ -103,25 +101,16 @@ export class BlogsController {
   async update(@Param('id') id: string, @Body() input: UpdateBlogDto) {
     const { name, description, websiteUrl } = input;
 
-    const isUpdated: boolean = await this.blogsService.update(
-      id,
-      name,
-      description,
-      websiteUrl,
+    await this.commandBus.execute<UpdateBlogCommand, void>(
+      new UpdateBlogCommand(id, name, description, websiteUrl),
     );
-
-    if (!isUpdated) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {
-    const isDeleted: boolean = await this.blogsService.delete(id);
-
-    if (!isDeleted) {
-      throw new NotFoundException(`Blog with id ${id} not found`);
-    }
+    await this.commandBus.execute<DeleteBlogCommand, void>(
+      new DeleteBlogCommand(id),
+    );
   }
 }

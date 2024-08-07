@@ -4,11 +4,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { appSettings } from './app-settings';
 import { LoggerMiddlewareFunc } from '@infrastructure/middlewares/logger.middleware';
 import { HttpExceptionFilter } from '@infrastructure/exception-filters/http-exception-filter';
 import { useContainer } from 'class-validator';
-import { AppModule } from '../app.module';
+import { AppModule } from '../modules/app.module';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '@settings/configuration';
 
 // Префикс нашего приложения (http://site.com/api)
 export const APP_PREFIX = '/api';
@@ -50,7 +51,12 @@ const setAppPrefix = (app: INestApplication) => {
 };
 
 const setSwagger = (app: INestApplication) => {
-  if (!appSettings.env.isProduction()) {
+  const configService = app.get(ConfigService<ConfigurationType, true>);
+  const environmentSettings = configService.get('environmentSettings', {
+    infer: true,
+  });
+
+  if (environmentSettings.isProduction()) {
     const swaggerPath = APP_PREFIX + '/swagger-doc';
 
     const config = new DocumentBuilder()

@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RegistrationUserDto } from './dto/input/registration-user.input.dto';
-import { AuthService } from '../application/auth.service';
 import { LoginDto } from '@features/auth/api/dto/input/login.input.dto';
 import { PasswordRecoveryDto } from '@features/auth/api/dto/input/password-recovery.input.dto';
 import { NewPasswordDto } from '@features/auth/api/dto/input/new-password.input.dto';
@@ -18,18 +17,34 @@ import { RegistrationConfirmationDto } from '@features/auth/api/dto/input/regist
 import { RegistrationEmailResendingDto } from '@features/auth/api/dto/input/registration-email-resending.input.dto';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { LoginCommand } from '@features/auth/application/handlers/login.handler';
+import { LoginOutputDto } from '@features/auth/api/dto/output/login.output.dto';
+import { PasswordRecoveryCommand } from '@features/auth/application/handlers/passport-recovery.handler';
+import { NewPassportCommand } from '@features/auth/application/handlers/new-passport.handler';
+import { RegistrationConfirmationCommand } from '@features/auth/application/handlers/registration-confirmation.handler';
+import { RegistrationCommand } from '@features/auth/application/handlers/registration.handler';
+import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
+import { GetMeQuery } from '@features/auth/application/handlers/get-me.handler';
+import { MeOutputDto } from '@features/auth/api/dto/output/me.output.dto';
+
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() input: LoginDto) {
     const { loginOrEmail, password } = input;
 
-    return await this.authService.login(loginOrEmail, password);
+    return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
+      new LoginCommand(loginOrEmail, password),
+    );
   }
 
   @Post('password-recovery')
@@ -37,7 +52,9 @@ export class AuthController {
   async passwordRecovery(@Body() input: PasswordRecoveryDto) {
     const { email } = input;
 
-    await this.authService.recoveryPassword(email);
+    await this.commandBus.execute<PasswordRecoveryCommand, void>(
+      new PasswordRecoveryCommand(email),
+    );
   }
 
   @Post('new-password')
@@ -45,7 +62,9 @@ export class AuthController {
   async newPassword(@Body() input: NewPasswordDto) {
     const { newPassword, recoveryCode } = input;
 
-    await this.authService.newPassword(newPassword, recoveryCode);
+    await this.commandBus.execute<NewPassportCommand, void>(
+      new NewPassportCommand(newPassword, recoveryCode),
+    );
   }
 
   @Post('registration-confirmation')
@@ -53,7 +72,9 @@ export class AuthController {
   async registrationConfirmation(@Body() input: RegistrationConfirmationDto) {
     const { code } = input;
 
-    await this.authService.registrationConfirmation(code);
+    await this.commandBus.execute<RegistrationConfirmationCommand, void>(
+      new RegistrationConfirmationCommand(code),
+    );
   }
 
   @Post('registration')
@@ -61,7 +82,9 @@ export class AuthController {
   async registration(@Body() input: RegistrationUserDto) {
     const { login, password, email } = input;
 
-    await this.authService.registration(login, password, email);
+    await this.commandBus.execute<RegistrationCommand, void>(
+      new RegistrationCommand(login, password, email),
+    );
   }
 
   @Post('registration-email-resending')
@@ -71,7 +94,9 @@ export class AuthController {
   ) {
     const { email } = input;
 
-    await this.authService.registrationEmailResending(email);
+    await this.commandBus.execute<RegistrationEmailResendingCommand, void>(
+      new RegistrationEmailResendingCommand(email),
+    );
   }
 
   @ApiSecurity('bearer')
@@ -79,6 +104,9 @@ export class AuthController {
   @Get('me')
   async me(@Req() request: Request) {
     const user = request.currentUser;
-    return await this.authService.me(user!);
+
+    return await this.queryBus.execute<GetMeQuery, MeOutputDto>(
+      new GetMeQuery(user!),
+    );
   }
 }

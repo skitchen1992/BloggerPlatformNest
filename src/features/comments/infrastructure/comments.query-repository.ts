@@ -20,13 +20,17 @@ export class CommentsQueryRepository {
   ) {}
 
   public async getById(id: string): Promise<CommentOutputDto | null> {
-    const comment = await this.commentModel.findById(id).lean();
+    try {
+      const comment = await this.commentModel.findById(id).lean();
 
-    if (!comment) {
+      if (!comment) {
+        return null;
+      }
+
+      return CommentOutputDtoMapper(comment);
+    } catch (e) {
       return null;
     }
-
-    return CommentOutputDtoMapper(comment);
   }
 
   public async getAll(
