@@ -23,6 +23,7 @@ import { Request } from 'express';
 import { LikeOperationCommand } from '@features/posts/application/handlers/like-operation.handler';
 import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { IsCommentExistCommand } from '@features/comments/application/handlers/is-comment-exist.handler';
+import { CommentDocument } from '@features/comments/domain/comment.entity';
 
 // Tag для swagger
 @ApiTags('Comments')
@@ -43,23 +44,31 @@ export class CommentsController {
 
   @ApiSecurity('bearer')
   @UseGuards(JwtAuthGuard)
-  @Put(':id')
+  @Put(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: UpdateCommentDto) {
+  async update(
+    @Param('commentId') commentId: string,
+    @Body() input: UpdateCommentDto,
+    @Req() request: Request,
+  ) {
+    const userId = request.currentUser!.id.toString();
+
     const { content } = input;
 
     await this.commandBus.execute<UpdateCommentCommand, void>(
-      new UpdateCommentCommand(content, id),
+      new UpdateCommentCommand(content, commentId, userId),
     );
   }
 
   @ApiSecurity('bearer')
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
+  @Delete(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string) {
+  async delete(@Param('commentId') commentId: string, @Req() request: Request) {
+    const userId = request.currentUser!.id.toString();
+
     await this.commandBus.execute<DeleteCommentCommand, void>(
-      new DeleteCommentCommand(id),
+      new DeleteCommentCommand(commentId, userId),
     );
   }
 
@@ -72,7 +81,7 @@ export class CommentsController {
     @Param('commentId') commentId: string,
     @Req() request: Request,
   ) {
-    await this.commandBus.execute<IsCommentExistCommand, string>(
+    await this.commandBus.execute<IsCommentExistCommand, CommentDocument>(
       new IsCommentExistCommand(commentId),
     );
 
