@@ -22,7 +22,7 @@ export class Like {
     enum: Object.values(LikeStatusEnum),
     required: true,
   })
-  status: string;
+  status: LikeStatusEnum;
 
   @Prop({ type: String, require: true })
   authorId: string;
@@ -31,14 +31,14 @@ export class Like {
   parentId: string;
 
   @Prop({ type: String, enum: Object.values(ParentTypeEnum), required: true })
-  parentType: string;
+  parentType: ParentTypeEnum;
 }
 
-export const LikesSchema = SchemaFactory.createForClass(Like);
+export const LikeSchema = SchemaFactory.createForClass(Like);
 //Для загрузки статических методов
-LikesSchema.loadClass(Like);
+LikeSchema.loadClass(Like);
 
 //Types
-export type LikesDocument = HydratedDocument<Like>;
+export type LikeDocument = HydratedDocument<Like>;
 
-export type LikesModelType = Model<LikesDocument>;
+export type LikeModelType = Model<LikeDocument>;

@@ -24,6 +24,7 @@ import { LikeOperationCommand } from '@features/posts/application/handlers/like-
 import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { IsCommentExistCommand } from '@features/comments/application/handlers/is-comment-exist.handler';
 import { CommentDocument } from '@features/comments/domain/comment.entity';
+import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
 
 // Tag для swagger
 @ApiTags('Comments')
@@ -34,11 +35,13 @@ export class CommentsController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':id')
-  async getById(@Param('id') id: string) {
-    console.log('id', id);
+  async getById(@Param('id') id: string, @Req() request: Request) {
+    const userId = request.currentUser?.id.toString();
+
     return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
-      new GetCommentQuery(id),
+      new GetCommentQuery(id, userId),
     );
   }
 

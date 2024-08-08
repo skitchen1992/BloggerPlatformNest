@@ -1,4 +1,4 @@
-import { Module, Provider } from '@nestjs/common';
+import { forwardRef, Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../modules/shared.module';
 import { CommentsRepository } from '@features/comments/infrastructure/comments.repository';
@@ -14,6 +14,8 @@ import {
 } from '@features/comments/domain/comment.entity';
 import { IsCommentExistHandler } from '@features/comments/application/handlers/is-comment-exist.handler';
 import { CommentsController } from '@features/comments/api/comments.controller';
+import { Like, LikeSchema } from '@features/likes/domain/likes.entity';
+import { UsersModule } from '@features/users/users.module';
 
 const commentsProviders: Provider[] = [
   CommentsRepository,
@@ -28,8 +30,12 @@ const commentsProviders: Provider[] = [
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+    MongooseModule.forFeature([
+      { name: Comment.name, schema: CommentSchema },
+      { name: Like.name, schema: LikeSchema },
+    ]),
     SharedModule,
+    forwardRef(() => UsersModule),
   ],
   providers: [...commentsProviders],
   controllers: [CommentsController],

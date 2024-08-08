@@ -22,6 +22,7 @@ export class CommentOutputDto {
 
 export const CommentOutputDtoMapper = (
   comment: CommentDocument,
+  likesInfo: ILikesInfo,
 ): CommentOutputDto => {
   const outputDto = new CommentOutputDto();
 
@@ -32,11 +33,12 @@ export const CommentOutputDtoMapper = (
     userLogin: comment.commentatorInfo.userLogin,
   };
   outputDto.createdAt = comment.createdAt.toISOString();
-  outputDto.likesInfo = {
-    likesCount: 0,
-    dislikesCount: 0,
-    myStatus: LikeStatusEnum.NONE,
-  };
+  outputDto.likesInfo = likesInfo;
+  // outputDto.likesInfo = {
+  //   likesCount: 0,
+  //   dislikesCount: 0,
+  //   myStatus: LikeStatusEnum.NONE,
+  // };
 
   return outputDto;
 };
