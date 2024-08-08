@@ -30,8 +30,8 @@ import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handle
 import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
 import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
-import { GetPostQuery } from '@features/blogs/application/handlers/get-post.handler';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
+import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
 
 // Tag для swagger
 @ApiTags('Blogs')
