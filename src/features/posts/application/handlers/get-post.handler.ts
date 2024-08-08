@@ -15,6 +15,7 @@ export class GetPostHandler
   async execute(command: GetPostQuery): Promise<PostOutputDto> {
     const { postId } = command;
 
+    debugger;
     const post = await this.postsQueryRepository.getById(postId);
 
     if (!post) {

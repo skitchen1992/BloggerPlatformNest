@@ -16,6 +16,7 @@ import { BlogsModule } from '@features/blogs/blogs.module';
 import { PostsModule } from '@features/posts/posts.module';
 import { CommentsModule } from '@features/comments/comments.module';
 import { TestingModule } from '@features/testing/testing.module';
+import { LikesModule } from '@features/likes/likes.module';
 
 @Module({
   // Регистрация модулей
@@ -59,6 +60,7 @@ import { TestingModule } from '@features/testing/testing.module';
     BlogsModule,
     PostsModule,
     CommentsModule,
+    LikesModule,
     SharedModule,
     TestingModule,
   ],

@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
@@ -37,6 +38,11 @@ import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-po
 import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
 import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { LikeOperationCommand } from '@features/posts/application/handlers/like-operation.handler';
+import { Request } from 'express';
+import { LikeDto } from '@features/posts/api/dto/input/like.input.dto';
+import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
+import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -100,8 +106,8 @@ export class PostsController {
     >(new GetAllPostQuery(query));
   }
 
-  @ApiSecurity('bearer')
-  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createPost(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
@@ -123,8 +129,8 @@ export class PostsController {
     );
   }
 
-  @ApiSecurity('bearer')
-  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(@Param('id') id: string, @Body() input: UpdatePostDto) {
@@ -135,13 +141,35 @@ export class PostsController {
     );
   }
 
-  @ApiSecurity('bearer')
-  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('id') id: string) {
     await this.commandBus.execute<DeletePostCommand, void>(
       new DeletePostCommand(id),
+    );
+  }
+
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async likeOperation(
+    @Body() input: LikeDto,
+    @Param('postId') postId: string,
+    @Req() request: Request,
+  ) {
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
+    );
+
+    const userId = request.currentUser!.id.toString();
+
+    const { likeStatus } = input;
+
+    await this.commandBus.execute<LikeOperationCommand, void>(
+      new LikeOperationCommand(postId, likeStatus, userId, ParentTypeEnum.POST),
     );
   }
 }

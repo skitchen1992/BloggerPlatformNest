@@ -1,14 +1,10 @@
 import { CommentDocument } from '../../../domain/comment.entity';
+import { LikeStatusEnum } from '@features/likes/domain/likes.entity';
 
-export enum LikeStatus {
-  LIKE = 'Like',
-  DISLIKE = 'Dislike',
-  NONE = 'None',
-}
 export interface ILikesInfo {
   likesCount: number;
   dislikesCount: number;
-  myStatus: LikeStatus;
+  myStatus: LikeStatusEnum;
 }
 export class CommentOutputDto {
   id: string;
@@ -39,7 +35,7 @@ export const CommentOutputDtoMapper = (
   outputDto.likesInfo = {
     likesCount: 0,
     dislikesCount: 0,
-    myStatus: LikeStatus.NONE,
+    myStatus: LikeStatusEnum.NONE,
   };
 
   return outputDto;
