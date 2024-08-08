@@ -25,7 +25,6 @@ import {
   CommentQuery,
 } from '@features/comments/api/dto/output/comment.output.pagination.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
 import { ObjectId } from 'mongodb';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
@@ -43,6 +42,7 @@ import { Request } from 'express';
 import { LikeDto } from '@features/posts/api/dto/input/like.input.dto';
 import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
+import { CreateCommentCommand } from '@features/comments/application/handlers/create-comment.handler';
 
 // Tag для swagger
 @ApiTags('Posts')

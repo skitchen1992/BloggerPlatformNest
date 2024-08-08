@@ -15,13 +15,13 @@ import {
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
-    @InjectModel(Comment.name) private commentModel: CommentModelType,
+    @InjectModel(Comment.name) private commentsModel: CommentModelType,
     private readonly pagination: Pagination,
   ) {}
 
   public async getById(id: string): Promise<CommentOutputDto | null> {
     try {
-      const comment = await this.commentModel.findById(id).lean();
+      const comment = await this.commentsModel.findById(id).lean();
 
       if (!comment) {
         return null;
@@ -39,14 +39,16 @@ export class CommentsQueryRepository {
   ): Promise<CommentOutputPaginationDto> {
     const pagination = this.pagination.getComments(query, params);
 
-    const users = await this.commentModel
+    const users = await this.commentsModel
       .find(pagination.query)
       .sort(pagination.sort)
       .skip(pagination.skip)
       .limit(pagination.pageSize)
       .lean();
 
-    const totalCount = await this.commentModel.countDocuments(pagination.query);
+    const totalCount = await this.commentsModel.countDocuments(
+      pagination.query,
+    );
 
     const postList = users.map((user) => CommentOutputDtoMapper(user));
 

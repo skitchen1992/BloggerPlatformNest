@@ -108,7 +108,7 @@ describe('Users (e2e) GET', () => {
     });
   });
 
-  it('Should get array by filters', async () => {
+  it('Should getById array by filters', async () => {
     const providedUsers = [
       { login: 'loSer', password: 'string', email: 'email2p@gg.om' },
       { login: 'log01', password: 'string', email: 'emai@gg.com' },
@@ -240,7 +240,7 @@ describe('Users (e2e) POST', () => {
     });
   });
 
-  it('Should get Error while field "login" is too short', async () => {
+  it('Should getById Error while field "login" is too short', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(
@@ -255,7 +255,7 @@ describe('Users (e2e) POST', () => {
     expect(response.body).toEqual(data.errorDataSet1);
   });
 
-  it('Should get Error while field "password" is too long', async () => {
+  it('Should getById Error while field "password" is too long', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(
@@ -270,7 +270,7 @@ describe('Users (e2e) POST', () => {
     expect(response.body).toEqual(data.errorDataSet2);
   });
 
-  it('Should get Error while field "password" is too long', async () => {
+  it('Should getById Error while field "password" is too long', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(

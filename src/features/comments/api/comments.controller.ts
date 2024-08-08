@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UpdateCommentDto } from '@features/comments/api/dto/input/update-comment.input.dto';
@@ -17,6 +18,11 @@ import { DeleteCommentCommand } from '@features/comments/application/handlers/de
 import { GetCommentQuery } from '@features/comments/application/handlers/get-comment.handler';
 import { CommentOutputDto } from '@features/comments/api/dto/output/comment.output.dto';
 import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { LikeDto } from '@features/posts/api/dto/input/like.input.dto';
+import { Request } from 'express';
+import { LikeOperationCommand } from '@features/posts/application/handlers/like-operation.handler';
+import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
+import { IsCommentExistCommand } from '@features/comments/application/handlers/is-comment-exist.handler';
 
 // Tag для swagger
 @ApiTags('Comments')
@@ -29,6 +35,7 @@ export class CommentsController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
+    console.log('id', id);
     return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
       new GetCommentQuery(id),
     );
@@ -53,6 +60,33 @@ export class CommentsController {
   async delete(@Param('id') id: string) {
     await this.commandBus.execute<DeleteCommentCommand, void>(
       new DeleteCommentCommand(id),
+    );
+  }
+
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async likeOperation(
+    @Body() input: LikeDto,
+    @Param('commentId') commentId: string,
+    @Req() request: Request,
+  ) {
+    await this.commandBus.execute<IsCommentExistCommand, string>(
+      new IsCommentExistCommand(commentId),
+    );
+
+    const userId = request.currentUser!.id.toString();
+
+    const { likeStatus } = input;
+
+    await this.commandBus.execute<LikeOperationCommand, void>(
+      new LikeOperationCommand(
+        commentId,
+        likeStatus,
+        userId,
+        ParentTypeEnum.COMMENT,
+      ),
     );
   }
 }
