@@ -11,6 +11,7 @@ export class GetPostForBlogQuery {
   constructor(
     public query: PostQuery,
     public blogId: string,
+    public userId?: string,
   ) {}
 }
 
@@ -25,7 +26,7 @@ export class GetPostForBlogHandler
   async execute(
     command: GetPostForBlogQuery,
   ): Promise<PostOutputPaginationDto> {
-    const { query, blogId } = command;
+    const { query, blogId, userId } = command;
 
     const blog = await this.blogsQueryRepository.getById(blogId);
 
@@ -33,6 +34,6 @@ export class GetPostForBlogHandler
       throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
 
-    return await this.postsQueryRepository.getAll(query, { blogId });
+    return await this.postsQueryRepository.getAll(query, { blogId }, userId);
   }
 }

@@ -8,6 +8,7 @@ import {
   ParentTypeEnum,
 } from '../domain/likes.entity';
 import { UpdateQuery } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class LikesRepository {
@@ -42,7 +43,9 @@ export class LikesRepository {
 
   public async delete(id: string): Promise<boolean> {
     try {
-      const deleteResult = await this.likesModel.deleteOne({ _id: id });
+      const deleteResult = await this.likesModel.deleteOne({
+        _id: new ObjectId(id),
+      });
 
       return deleteResult.deletedCount === 1;
     } catch (e) {
@@ -52,7 +55,10 @@ export class LikesRepository {
 
   public async update(id: string, data: UpdateQuery<Like>): Promise<boolean> {
     try {
-      const updatedResult = await this.likesModel.updateOne({ _id: id }, data);
+      const updatedResult = await this.likesModel.updateOne(
+        { _id: new ObjectId(id) },
+        data,
+      );
 
       return updatedResult.matchedCount > 0;
     } catch (e) {

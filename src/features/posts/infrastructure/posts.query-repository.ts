@@ -163,8 +163,6 @@ export class PostsQueryRepository {
 
     const totalCount = await this.postModel.countDocuments(pagination.query);
 
-    //const postList = posts.map((user) => PostOutputDtoMapper(user));
-
     const postList = await Promise.all(
       posts.map(async (post) => {
         if (userId) {

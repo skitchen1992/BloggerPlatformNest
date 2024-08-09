@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CreateBlogDto } from './dto/input/create-blog.input.dto';
@@ -32,6 +33,8 @@ import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-po
 import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
+import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
+import { Request } from 'express';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -65,15 +68,19 @@ export class BlogsController {
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: PostQuery,
+    @Req() request: Request,
   ) {
+    const userId = request.currentUser?.id.toString();
+
     return await this.queryBus.execute<
       GetPostForBlogQuery,
       PostOutputPaginationDto
-    >(new GetPostForBlogQuery(query, blogId));
+    >(new GetPostForBlogQuery(query, blogId, userId));
   }
 
   @ApiSecurity('basic')
