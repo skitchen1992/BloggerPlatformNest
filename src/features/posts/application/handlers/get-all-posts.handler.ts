@@ -6,7 +6,10 @@ import {
 import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query-repository';
 
 export class GetAllPostQuery {
-  constructor(public query: PostQuery) {}
+  constructor(
+    public query: PostQuery,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetAllPostQuery)
@@ -15,8 +18,8 @@ export class GetAllPostsHandler
 {
   constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
   async execute(command: GetAllPostQuery): Promise<PostOutputPaginationDto> {
-    const { query } = command;
+    const { query, userId } = command;
 
-    return await this.postsQueryRepository.getAll(query);
+    return await this.postsQueryRepository.getAll(query, {}, userId);
   }
 }

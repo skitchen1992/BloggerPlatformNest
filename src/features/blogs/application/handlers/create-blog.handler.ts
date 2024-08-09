@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Blog } from '@features/blogs/domain/blog.entity';
 import { BlogsRepository } from '@features/blogs/infrastructure/blogs.repository';
+import { getCurrentDate } from '@utils/dates';
 
 export class CreateBlogCommand {
   constructor(
@@ -22,7 +23,7 @@ export class CreateBlogHandler
       name,
       description,
       websiteUrl,
-      createdAt: new Date(),
+      createdAt: getCurrentDate(),
       isMembership: false,
     };
 

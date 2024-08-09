@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
+import { getCurrentDate } from '@utils/dates';
 
 interface IEmailConfirmation {
   isConfirmed: boolean;
@@ -23,8 +24,8 @@ export class User {
   @Prop({ type: String, require: true })
   email: string;
 
-  @Prop({ type: Date, default: new Date() })
-  createdAt: Date;
+  @Prop({ type: String, default: getCurrentDate() })
+  createdAt: string;
 
   @Prop({
     type: {

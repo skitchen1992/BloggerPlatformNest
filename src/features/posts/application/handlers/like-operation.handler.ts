@@ -5,6 +5,7 @@ import {
   ParentTypeEnum,
 } from '@features/likes/domain/likes.entity';
 import { LikesRepository } from '@features/likes/infrastructure/likes.repository';
+import { getCurrentDate } from '@utils/dates';
 
 export class LikeOperationCommand {
   constructor(
@@ -31,7 +32,7 @@ export class LikeOperationHandler
         authorId: userId,
         parentId: postId,
         parentType,
-        createdAt: new Date(),
+        createdAt: getCurrentDate(),
       };
 
       await this.likesRepository.create(newLike);

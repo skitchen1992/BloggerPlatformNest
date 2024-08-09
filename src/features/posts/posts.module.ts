@@ -17,6 +17,9 @@ import { BlogsModule } from '@features/blogs/blogs.module';
 import { CommentsModule } from '@features/comments/comments.module';
 import { PostsController } from '@features/posts/api/posts.controller';
 import { GetPostHandler } from '@features/posts/application/handlers/get-post.handler';
+import { Like, LikeSchema } from '@features/likes/domain/likes.entity';
+import { User, UserSchema } from '@features/users/domain/user.entity';
+import { UsersModule } from '@features/users/users.module';
 
 const postsProviders: Provider[] = [
   PostsRepository,
@@ -35,10 +38,15 @@ const postsProviders: Provider[] = [
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    MongooseModule.forFeature([
+      { name: Post.name, schema: PostSchema },
+      { name: Like.name, schema: LikeSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
     SharedModule,
     forwardRef(() => BlogsModule),
     forwardRef(() => CommentsModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [...postsProviders],
   controllers: [PostsController],

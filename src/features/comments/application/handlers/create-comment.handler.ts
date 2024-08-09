@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '@features/comments/infrastructure/comments.repository';
 import { Comment } from '@features/comments/domain/comment.entity';
+import { getCurrentDate } from '@utils/dates';
 
 export class CreateCommentCommand {
   constructor(
@@ -26,7 +27,7 @@ export class CreateCommentHandler
         userLogin,
       },
       postId,
-      createdAt: new Date(),
+      createdAt: getCurrentDate(),
     };
 
     return await this.commentsRepository.create(newComment);

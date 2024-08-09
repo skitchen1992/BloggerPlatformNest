@@ -25,7 +25,6 @@ import {
   CommentQuery,
 } from '@features/comments/api/dto/output/comment.output.pagination.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ObjectId } from 'mongodb';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
 import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
@@ -43,6 +42,7 @@ import { LikeDto } from '@features/posts/api/dto/input/like.input.dto';
 import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 import { CreateCommentCommand } from '@features/comments/application/handlers/create-comment.handler';
+import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -59,7 +59,10 @@ export class PostsController {
   async createComment(
     @Body() input: CreateCommentDto,
     @Param('postId') postId: string,
+    @Req() request: Request,
   ) {
+    const { id: userId, login: userLogin } = request.currentUser!;
+
     await this.commandBus.execute<IsPostExistCommand, string>(
       new IsPostExistCommand(postId),
     );
@@ -69,25 +72,22 @@ export class PostsController {
     const createdCommentId: string = await this.commandBus.execute<
       CreateCommentCommand,
       string
-    >(
-      new CreateCommentCommand(
-        content,
-        new ObjectId().toString(),
-        'login',
-        postId,
-      ),
-    );
+    >(new CreateCommentCommand(content, userId, userLogin, postId));
 
     return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
       new GetCommentQuery(createdCommentId),
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':postId/comments')
-  async getAllComments(
+  async getCommentsForPost(
     @Query() query: CommentQuery,
     @Param('postId') postId: string,
+    @Req() request: Request,
   ) {
+    const userId = request.currentUser?.id.toString();
+
     await this.commandBus.execute<IsPostExistCommand, string>(
       new IsPostExistCommand(postId),
     );
@@ -95,15 +95,18 @@ export class PostsController {
     return await this.queryBus.execute<
       GetCommentsForPostQuery,
       CommentOutputPaginationDto
-    >(new GetCommentsForPostQuery(postId, query));
+    >(new GetCommentsForPostQuery(postId, query, userId));
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get()
-  async getAll(@Query() query: PostQuery) {
+  async getAllPosts(@Query() query: PostQuery, @Req() request: Request) {
+    const userId = request.currentUser?.id.toString();
+
     return await this.queryBus.execute<
       GetAllPostQuery,
       PostOutputPaginationDto
-    >(new GetAllPostQuery(query));
+    >(new GetAllPostQuery(query, userId));
   }
 
   @ApiSecurity('basic')
@@ -122,10 +125,12 @@ export class PostsController {
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':id')
-  async getPostById(@Param('id') id: string) {
+  async getPostById(@Param('id') id: string, @Req() request: Request) {
+    const userId = request.currentUser?.id.toString();
     return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
-      new GetPostQuery(id),
+      new GetPostQuery(id, userId),
     );
   }
 

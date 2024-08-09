@@ -26,7 +26,10 @@ export class PostOutputDto {
 
 // MAPPERS
 
-export const PostOutputDtoMapper = (post: PostDocument): PostOutputDto => {
+export const PostOutputDtoMapper = (
+  post: PostDocument,
+  extendedLikesInfo: ExtendedLikesInfo,
+): PostOutputDto => {
   const outputDto = new PostOutputDto();
 
   outputDto.id = post._id.toString();
@@ -35,13 +38,8 @@ export const PostOutputDtoMapper = (post: PostDocument): PostOutputDto => {
   outputDto.content = post.content;
   outputDto.blogId = post.blogId;
   outputDto.blogName = post.blogName;
-  outputDto.createdAt = post.createdAt.toISOString();
-  outputDto.extendedLikesInfo = {
-    likesCount: 0,
-    dislikesCount: 0,
-    myStatus: LikeStatusEnum.NONE,
-    newestLikes: [],
-  };
+  outputDto.createdAt = post.createdAt;
+  outputDto.extendedLikesInfo = extendedLikesInfo;
 
   return outputDto;
 };

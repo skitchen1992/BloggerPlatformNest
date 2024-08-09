@@ -14,7 +14,7 @@ export enum ParentTypeEnum {
 @Schema()
 export class Like {
   @Prop({ type: String, require: true })
-  createdAt: Date;
+  createdAt: string;
 
   @Prop({
     type: String,

@@ -20,7 +20,6 @@ export class BearerTokenInterceptorGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      request.currentUser = null;
       return true;
     }
 
@@ -31,7 +30,6 @@ export class BearerTokenInterceptorGuard implements CanActivate {
       request.currentUser = await this.usersQueryRepository.getById(userId);
       return true;
     } catch {
-      request.currentUser = null;
       return true;
     }
   }

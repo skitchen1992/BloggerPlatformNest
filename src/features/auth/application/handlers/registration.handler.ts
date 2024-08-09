@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
 import { AuthService } from '@features/auth/application/auth.service';
-import { add } from '@utils/dates';
+import { add, getCurrentDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { User } from '@features/users/domain/user.entity';
 
@@ -44,11 +44,11 @@ export class RegistrationHandler
       login,
       password: passwordHash,
       email,
-      createdAt: new Date(),
+      createdAt: getCurrentDate(),
       emailConfirmation: {
         isConfirmed: false,
         confirmationCode,
-        expirationDate: add(new Date(), { hours: 1 }),
+        expirationDate: add(getCurrentDate(), { hours: 1 }),
       },
     };
 

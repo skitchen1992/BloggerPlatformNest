@@ -4,7 +4,10 @@ import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
 import { NotFoundException } from '@nestjs/common';
 
 export class GetPostQuery {
-  constructor(public postId: string) {}
+  constructor(
+    public postId: string,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetPostQuery)
@@ -13,10 +16,9 @@ export class GetPostHandler
 {
   constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
   async execute(command: GetPostQuery): Promise<PostOutputDto> {
-    const { postId } = command;
+    const { postId, userId } = command;
 
-    debugger;
-    const post = await this.postsQueryRepository.getById(postId);
+    const post = await this.postsQueryRepository.getById(postId, userId);
 
     if (!post) {
       throw new NotFoundException(`Post with id ${postId} not found`);

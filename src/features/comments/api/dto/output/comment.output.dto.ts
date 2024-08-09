@@ -32,13 +32,8 @@ export const CommentOutputDtoMapper = (
     userId: comment.commentatorInfo.userId,
     userLogin: comment.commentatorInfo.userLogin,
   };
-  outputDto.createdAt = comment.createdAt.toISOString();
+  outputDto.createdAt = comment.createdAt;
   outputDto.likesInfo = likesInfo;
-  // outputDto.likesInfo = {
-  //   likesCount: 0,
-  //   dislikesCount: 0,
-  //   myStatus: LikeStatusEnum.NONE,
-  // };
 
   return outputDto;
 };

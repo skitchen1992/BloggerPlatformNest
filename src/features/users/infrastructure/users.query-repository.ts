@@ -12,18 +12,6 @@ import {
   UserOutputPaginationDtoMapper,
 } from '@features/users/api/dto/output/user.output.pagination.dto';
 
-// export abstract class BaseQueryRepository<M> {
-//     protected constructor(private model: Model<M>) {
-//     }
-//
-//     async find(filter: FilterQuery<M>,
-//                projection?: ProjectionType<M> | null | undefined,
-//                options?: QueryOptions<M> | null | undefined,
-//                pagination: {skip: number, limit: number }) {
-//         return this.model.find<M>(filter, projection, options)
-//     }
-// }
-
 @Injectable()
 export class UsersQueryRepository {
   constructor(
