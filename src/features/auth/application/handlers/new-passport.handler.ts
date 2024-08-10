@@ -1,9 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { AuthService } from '@features/auth/application/auth.service';
-import { fromUnixTimeToISO, getCurrentDate, isExpiredDate } from '@utils/dates';
+import {
+  fromUnixTimeToISO,
+  getCurrentISOStringDate,
+  isExpiredDate,
+} from '@utils/dates';
 import { NewPasswordDtoMapper } from '@features/auth/api/dto/new-password.dto';
+import { SharedService } from '@infrastructure/servises/shared/shared.service';
 
 export class NewPassportCommand {
   constructor(
@@ -18,12 +22,12 @@ export class NewPassportHandler
 {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
   ) {}
   async execute(command: NewPassportCommand): Promise<void> {
     const { recoveryCode, newPassword } = command;
 
-    const { userId, exp } = this.authService.verifyRecoveryCode(recoveryCode);
+    const { userId, exp } = this.sharedService.verifyRecoveryCode(recoveryCode);
 
     if (!userId || !exp) {
       throw new BadRequestException({
@@ -35,7 +39,7 @@ export class NewPassportHandler
     if (
       isExpiredDate({
         expirationDate: fromUnixTimeToISO(exp),
-        currentDate: getCurrentDate(),
+        currentDate: getCurrentISOStringDate(),
       })
     ) {
       throw new BadRequestException({
@@ -56,7 +60,7 @@ export class NewPassportHandler
       });
     }
 
-    const passwordHash = await this.authService.generatePasswordHash(
+    const passwordHash = await this.sharedService.generatePasswordHash(
       newPassword,
     );
 

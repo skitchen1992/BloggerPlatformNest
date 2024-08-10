@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
-import { getCurrentDate } from '@utils/dates';
+import { getCurrentISOStringDate } from '@utils/dates';
 
 @Schema()
 export class Blog {
@@ -13,7 +13,7 @@ export class Blog {
   @Prop({ type: String, require: true, maxlength: 100 })
   websiteUrl: string;
 
-  @Prop({ type: String, default: getCurrentDate() })
+  @Prop({ type: String, default: getCurrentISOStringDate() })
   createdAt: string;
 
   @Prop({ type: Boolean, require: true })

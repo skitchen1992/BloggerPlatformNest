@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { getCurrentDate } from '@utils/dates';
+import { getCurrentISOStringDate } from '@utils/dates';
 import { InterlayerNoticeExtension } from '@base/models/Interlayer';
 
 export type ErrorResponse = {
@@ -47,7 +47,7 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     } else {
       response.status(status).json({
         statusCode: status,
-        timestamp: getCurrentDate(),
+        timestamp: getCurrentISOStringDate(),
         path: request.url,
       });
     }

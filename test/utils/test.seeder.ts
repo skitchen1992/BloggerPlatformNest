@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { add, getCurrentDate } from '@utils/dates';
+import { add, getCurrentISOStringDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 
 export const testSeeder = {
@@ -17,10 +17,10 @@ export const testSeeder = {
         login: `test${index}`,
         email: `test${index}@gmail.com`,
         password: `123456789${index}`,
-        createdAt: getCurrentDate(),
+        createdAt: getCurrentISOStringDate(),
         emailConfirmation: {
           confirmationCode: getUniqueId(),
-          expirationDate: add(getCurrentDate(), { hours: 1 }),
+          expirationDate: add(getCurrentISOStringDate(), { hours: 1 }),
           isConfirmed: true,
         },
         _id: new ObjectId(),
@@ -32,7 +32,7 @@ export const testSeeder = {
   //   return {
   //     ip: '1',
   //     url: 'url',
-  //     date: getCurrentDate(),
+  //     date: getCurrentISOStringDate(),
   //     _id: new ObjectId(),
   //   };
   // },
@@ -42,7 +42,7 @@ export const testSeeder = {
   //     return {
   //       ip: '1',
   //       url: 'url',
-  //       date: getCurrentDate(),
+  //       date: getCurrentISOStringDate(),
   //       _id: new ObjectId(),
   //     };
   //   });
@@ -54,7 +54,7 @@ export const testSeeder = {
   //     description: 'Test description',
   //     websiteUrl: 'https://string.com',
   //     _id: new ObjectId(),
-  //     createdAt: getCurrentDate(),
+  //     createdAt: getCurrentISOStringDate(),
   //     isMembership: false,
   //   };
   // },
@@ -66,7 +66,7 @@ export const testSeeder = {
   //       description: `Test description${i}`,
   //       websiteUrl: `https://string${i}.com`,
   //       _id: new ObjectId(),
-  //       createdAt: getCurrentDate(),
+  //       createdAt: getCurrentISOStringDate(),
   //       isMembership: false,
   //     };
   //   });
@@ -79,7 +79,7 @@ export const testSeeder = {
   //     content: 'Content',
   //     blogId,
   //     blogName: 'Blog name',
-  //     createdAt: getCurrentDate(),
+  //     createdAt: getCurrentISOStringDate(),
   //     _id: new ObjectId(),
   //   };
   // },
@@ -92,7 +92,7 @@ export const testSeeder = {
   //       content: `Content${i}`,
   //       blogId,
   //       blogName: `Blog name${i}`,
-  //       createdAt: getCurrentDate(),
+  //       createdAt: getCurrentISOStringDate(),
   //       _id: new ObjectId(),
   //     };
   //   });
@@ -106,7 +106,7 @@ export const testSeeder = {
   //       userLogin: 'login',
   //     },
   //     postId,
-  //     createdAt: getCurrentDate(),
+  //     createdAt: getCurrentISOStringDate(),
   //     _id: new ObjectId(),
   //   };
   // },
@@ -120,7 +120,7 @@ export const testSeeder = {
   //         userLogin: `login${i}`,
   //       },
   //       postId,
-  //       createdAt: getCurrentDate(),
+  //       createdAt: getCurrentISOStringDate(),
   //       _id: new ObjectId(),
   //     };
   //   });
@@ -128,7 +128,7 @@ export const testSeeder = {
   //
   // createPostLikeDto() {
   //   return {
-  //     createdAt: getCurrentDate(),
+  //     createdAt: getCurrentISOStringDate(),
   //     status: LikeStatus.LIKE,
   //     authorId: new ObjectId().toString(),
   //     parentId: new ObjectId().toString(),
@@ -140,7 +140,7 @@ export const testSeeder = {
   //   return new Array(count).fill(null).map((item, i) => {
   //     return {
   //       _id: new ObjectId(),
-  //       createdAt: getCurrentDate(),
+  //       createdAt: getCurrentISOStringDate(),
   //       status,
   //       authorId,
   //       parentId,

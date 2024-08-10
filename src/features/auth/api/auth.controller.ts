@@ -28,6 +28,8 @@ import { RegistrationCommand } from '@features/auth/application/handlers/registr
 import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
 import { GetMeQuery } from '@features/auth/application/handlers/get-me.handler';
 import { MeOutputDto } from '@features/auth/api/dto/output/me.output.dto';
+import { RefreshTokenOutputDto } from '@features/auth/api/dto/output/refresh-token.output.dto';
+import { RefreshTokenCommand } from '@features/auth/application/handlers/refresh-token.handler';
 
 // Tag для swagger
 @ApiTags('Auth')
@@ -43,12 +45,25 @@ export class AuthController {
   async login(
     @Body() input: LoginDto,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ) {
     const { loginOrEmail, password } = input;
 
     return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
-      new LoginCommand(loginOrEmail, password, res),
+      new LoginCommand(loginOrEmail, password, res, req),
     );
+  }
+
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+  ) {
+    return await this.commandBus.execute<
+      RefreshTokenCommand,
+      RefreshTokenOutputDto
+    >(new RefreshTokenCommand(res, req));
   }
 
   @Post('password-recovery')

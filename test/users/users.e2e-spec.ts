@@ -5,7 +5,7 @@ import { HttpStatus } from '@nestjs/common';
 import { testSeeder } from '../utils/test.seeder';
 import { UserOutputDtoMapper } from '@features/users/api/dto/output/user.output.dto';
 import { getUniqueId } from '@utils/utils';
-import { add, getCurrentDate } from '@utils/dates';
+import { add, getCurrentISOStringDate } from '@utils/dates';
 import { ObjectId } from 'mongodb';
 import * as data from './dataset';
 import { APP_PREFIX } from '@settings/apply-app-setting';
@@ -128,10 +128,10 @@ describe('Users (e2e) GET', () => {
         login: user.login,
         email: user.email,
         password: user.password,
-        createdAt: getCurrentDate(),
+        createdAt: getCurrentISOStringDate(),
         emailConfirmation: {
           confirmationCode: getUniqueId(),
-          expirationDate: add(getCurrentDate(), { hours: 1 }),
+          expirationDate: add(getCurrentISOStringDate(), { hours: 1 }),
           isConfirmed: true,
         },
         _id: new ObjectId(),
