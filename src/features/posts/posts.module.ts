@@ -20,6 +20,7 @@ import { GetPostHandler } from '@features/posts/application/handlers/get-post.ha
 import { Like, LikeSchema } from '@features/likes/domain/likes.entity';
 import { User, UserSchema } from '@features/users/domain/user.entity';
 import { UsersModule } from '@features/users/users.module';
+import { IsBlogExistConstrain } from '@infrastructure/decorators/validate/is-blog-exist.decorator';
 
 const postsProviders: Provider[] = [
   PostsRepository,
@@ -34,6 +35,7 @@ const postsProviders: Provider[] = [
   GetCommentForPostHandler,
   GetCommentsForPostHandler,
   GetAllPostsHandler,
+  IsBlogExistConstrain,
 ];
 
 @Module({
