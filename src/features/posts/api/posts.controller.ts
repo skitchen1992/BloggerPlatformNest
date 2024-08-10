@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/input/create-post.input.dto';
 import { UpdatePostDto } from '@features/posts/api/dto/input/update-post.input.dto';
@@ -23,8 +25,6 @@ import {
   CommentQuery,
 } from '@features/comments/api/dto/output/comment.output.pagination.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateCommentCommand } from '@features/posts/application/handlers/create-comment.handler';
-import { ObjectId } from 'mongodb';
 import { CreatePostCommand } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostCommand } from '@features/posts/application/handlers/update-post.handler';
 import { DeletePostCommand } from '@features/posts/application/handlers/delete-post.handler';
@@ -35,6 +35,14 @@ import { GetCommentsForPostQuery } from '@features/posts/application/handlers/ge
 import { GetAllPostQuery } from '@features/posts/application/handlers/get-all-posts.handler';
 import { PostOutputDto } from '@features/posts/api/dto/output/post.output.dto';
 import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
+import { JwtAuthGuard } from '@infrastructure/guards/bearer-auth-guard.service';
+import { LikeOperationCommand } from '@features/posts/application/handlers/like-operation.handler';
+import { Request } from 'express';
+import { LikeDto } from '@features/posts/api/dto/input/like.input.dto';
+import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
+import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
+import { CreateCommentCommand } from '@features/comments/application/handlers/create-comment.handler';
+import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
 
 // Tag для swagger
 @ApiTags('Posts')
@@ -45,11 +53,16 @@ export class PostsController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
   @Post(':postId/comments')
   async createComment(
     @Body() input: CreateCommentDto,
     @Param('postId') postId: string,
+    @Req() request: Request,
   ) {
+    const { id: userId, login: userLogin } = request.currentUser!;
+
     await this.commandBus.execute<IsPostExistCommand, string>(
       new IsPostExistCommand(postId),
     );
@@ -59,25 +72,22 @@ export class PostsController {
     const createdCommentId: string = await this.commandBus.execute<
       CreateCommentCommand,
       string
-    >(
-      new CreateCommentCommand(
-        content,
-        new ObjectId().toString(),
-        'login',
-        postId,
-      ),
-    );
+    >(new CreateCommentCommand(content, userId, userLogin, postId));
 
     return await this.queryBus.execute<GetCommentQuery, CommentOutputDto>(
       new GetCommentQuery(createdCommentId),
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':postId/comments')
-  async getAllComments(
+  async getCommentsForPost(
     @Query() query: CommentQuery,
     @Param('postId') postId: string,
+    @Req() request: Request,
   ) {
+    const userId = request.currentUser?.id.toString();
+
     await this.commandBus.execute<IsPostExistCommand, string>(
       new IsPostExistCommand(postId),
     );
@@ -85,19 +95,24 @@ export class PostsController {
     return await this.queryBus.execute<
       GetCommentsForPostQuery,
       CommentOutputPaginationDto
-    >(new GetCommentsForPostQuery(postId, query));
+    >(new GetCommentsForPostQuery(postId, query, userId));
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get()
-  async getAll(@Query() query: PostQuery) {
+  async getAllPosts(@Query() query: PostQuery, @Req() request: Request) {
+    const userId = request.currentUser?.id.toString();
+
     return await this.queryBus.execute<
       GetAllPostQuery,
       PostOutputPaginationDto
-    >(new GetAllPostQuery(query));
+    >(new GetAllPostQuery(query, userId));
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Post()
-  async create(@Body() input: CreatePostDto) {
+  async createPost(@Body() input: CreatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     const createdPostId: string = await this.commandBus.execute<
@@ -110,16 +125,20 @@ export class PostsController {
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  async getPostById(@Param('id') id: string, @Req() request: Request) {
+    const userId = request.currentUser?.id.toString();
     return await this.queryBus.execute<GetPostQuery, PostOutputDto>(
-      new GetPostQuery(id),
+      new GetPostQuery(id, userId),
     );
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async update(@Param('id') id: string, @Body() input: UpdatePostDto) {
+  async updatePost(@Param('id') id: string, @Body() input: UpdatePostDto) {
     const { title, shortDescription, content, blogId } = input;
 
     await this.commandBus.execute<UpdatePostCommand, void>(
@@ -127,11 +146,35 @@ export class PostsController {
     );
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string) {
+  async deletePost(@Param('id') id: string) {
     await this.commandBus.execute<DeletePostCommand, void>(
       new DeletePostCommand(id),
+    );
+  }
+
+  @ApiSecurity('bearer')
+  @UseGuards(JwtAuthGuard)
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async likeOperation(
+    @Body() input: LikeDto,
+    @Param('postId') postId: string,
+    @Req() request: Request,
+  ) {
+    await this.commandBus.execute<IsPostExistCommand, string>(
+      new IsPostExistCommand(postId),
+    );
+
+    const userId = request.currentUser!.id.toString();
+
+    const { likeStatus } = input;
+
+    await this.commandBus.execute<LikeOperationCommand, void>(
+      new LikeOperationCommand(postId, likeStatus, userId, ParentTypeEnum.POST),
     );
   }
 }

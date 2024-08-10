@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateBlogDto } from './dto/input/create-blog.input.dto';
 import { UsersQuery } from '@features/users/api/dto/output/user.output.pagination.dto';
@@ -29,7 +31,10 @@ import { GetAllQuery } from '@features/blogs/application/handlers/get-all.handle
 import { BlogOutputPaginationDto } from '@features/blogs/api/dto/output/blog.output.pagination.dto';
 import { GetPostForBlogQuery } from '@features/blogs/application/handlers/get-posts-for-blog.handler';
 import { GetBlogQuery } from '@features/blogs/application/handlers/get-blog.handler';
-import { GetPostQuery } from '@features/blogs/application/handlers/get-post.handler';
+import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
+import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
+import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
+import { Request } from 'express';
 
 // Tag для swagger
 @ApiTags('Blogs')
@@ -47,6 +52,8 @@ export class BlogsController {
     );
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Post()
   async create(@Body() input: CreateBlogDto) {
     const { name, description, websiteUrl } = input;
@@ -61,17 +68,23 @@ export class BlogsController {
     );
   }
 
+  @UseGuards(BearerTokenInterceptorGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: PostQuery,
+    @Req() request: Request,
   ) {
+    const userId = request.currentUser?.id.toString();
+
     return await this.queryBus.execute<
       GetPostForBlogQuery,
       PostOutputPaginationDto
-    >(new GetPostForBlogQuery(query, blogId));
+    >(new GetPostForBlogQuery(query, blogId, userId));
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Post(':blogId/posts')
   async createPostForBlog(
     @Param('blogId') blogId: string,
@@ -96,6 +109,8 @@ export class BlogsController {
     );
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(@Param('id') id: string, @Body() input: UpdateBlogDto) {
@@ -106,6 +121,8 @@ export class BlogsController {
     );
   }
 
+  @ApiSecurity('basic')
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {

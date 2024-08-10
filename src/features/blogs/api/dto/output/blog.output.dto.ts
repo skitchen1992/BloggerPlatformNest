@@ -18,7 +18,7 @@ export const BlogOutputDtoMapper = (blog: BlogDocument): BlogOutputDto => {
   outputDto.name = blog.name;
   outputDto.description = blog.description;
   outputDto.websiteUrl = blog.websiteUrl;
-  outputDto.createdAt = blog.createdAt.toISOString();
+  outputDto.createdAt = blog.createdAt;
   outputDto.isMembership = blog.isMembership;
 
   return outputDto;

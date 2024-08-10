@@ -9,6 +9,7 @@ export class GetCommentsForPostQuery {
   constructor(
     public postId: string,
     public query: CommentQuery,
+    public userId?: string,
   ) {}
 }
 
@@ -22,8 +23,8 @@ export class GetCommentsForPostHandler
   async execute(
     command: GetCommentsForPostQuery,
   ): Promise<CommentOutputPaginationDto> {
-    const { postId, query } = command;
+    const { postId, query, userId } = command;
 
-    return await this.commentsQueryRepository.getAll(query, { postId });
+    return await this.commentsQueryRepository.getAll(query, { postId }, userId);
   }
 }

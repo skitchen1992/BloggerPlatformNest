@@ -7,7 +7,6 @@ import { PostsQueryRepository } from '@features/posts/infrastructure/posts.query
 import { CreatePostHandler } from '@features/posts/application/handlers/create-post.handler';
 import { UpdatePostHandler } from '@features/posts/application/handlers/update-post.handler';
 import { DeletePostHandler } from '@features/posts/application/handlers/delete-post.handler';
-import { GetPostHandler } from '@features/blogs/application/handlers/get-post.handler';
 import { IsPostExistHandler } from '@features/posts/application/handlers/is-post-exist.handler';
 import { IsBlogExistCommand } from '@features/posts/application/handlers/is-blog-exist.handler';
 import { GetCommentForPostHandler } from '@features/posts/application/handlers/get-comment.handler';
@@ -17,6 +16,11 @@ import { Post, PostSchema } from '@features/posts/domain/post.entity';
 import { BlogsModule } from '@features/blogs/blogs.module';
 import { CommentsModule } from '@features/comments/comments.module';
 import { PostsController } from '@features/posts/api/posts.controller';
+import { GetPostHandler } from '@features/posts/application/handlers/get-post.handler';
+import { Like, LikeSchema } from '@features/likes/domain/likes.entity';
+import { User, UserSchema } from '@features/users/domain/user.entity';
+import { UsersModule } from '@features/users/users.module';
+import { IsBlogExistConstrain } from '@infrastructure/decorators/validate/is-blog-exist.decorator';
 
 const postsProviders: Provider[] = [
   PostsRepository,
@@ -31,14 +35,20 @@ const postsProviders: Provider[] = [
   GetCommentForPostHandler,
   GetCommentsForPostHandler,
   GetAllPostsHandler,
+  IsBlogExistConstrain,
 ];
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    MongooseModule.forFeature([
+      { name: Post.name, schema: PostSchema },
+      { name: Like.name, schema: LikeSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
     SharedModule,
     forwardRef(() => BlogsModule),
     forwardRef(() => CommentsModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [...postsProviders],
   controllers: [PostsController],

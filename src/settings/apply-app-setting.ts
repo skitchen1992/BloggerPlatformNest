@@ -10,6 +10,7 @@ import { useContainer } from 'class-validator';
 import { AppModule } from '../modules/app.module';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '@settings/configuration';
+import cookieParser from 'cookie-parser';
 
 // Префикс нашего приложения (http://site.com/api)
 export const APP_PREFIX = '/api';
@@ -20,6 +21,8 @@ export const applyAppSettings = (app: INestApplication) => {
   // { fallbackOnErrors: true } требуется, поскольку Nest генерирует
   //исключения когда DI не имеет необходимого класс
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  app.use(cookieParser());
 
   // Применение глобальных Interceptors
   // app.useGlobalInterceptors()

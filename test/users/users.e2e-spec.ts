@@ -5,7 +5,7 @@ import { HttpStatus } from '@nestjs/common';
 import { testSeeder } from '../utils/test.seeder';
 import { UserOutputDtoMapper } from '@features/users/api/dto/output/user.output.dto';
 import { getUniqueId } from '@utils/utils';
-import { add } from '@utils/dates';
+import { add, getCurrentDate } from '@utils/dates';
 import { ObjectId } from 'mongodb';
 import * as data from './dataset';
 import { APP_PREFIX } from '@settings/apply-app-setting';
@@ -108,7 +108,7 @@ describe('Users (e2e) GET', () => {
     });
   });
 
-  it('Should get array by filters', async () => {
+  it('Should getById array by filters', async () => {
     const providedUsers = [
       { login: 'loSer', password: 'string', email: 'email2p@gg.om' },
       { login: 'log01', password: 'string', email: 'emai@gg.com' },
@@ -128,10 +128,10 @@ describe('Users (e2e) GET', () => {
         login: user.login,
         email: user.email,
         password: user.password,
-        createdAt: new Date(),
+        createdAt: getCurrentDate(),
         emailConfirmation: {
           confirmationCode: getUniqueId(),
-          expirationDate: add(new Date(), { hours: 1 }),
+          expirationDate: add(getCurrentDate(), { hours: 1 }),
           isConfirmed: true,
         },
         _id: new ObjectId(),
@@ -240,7 +240,7 @@ describe('Users (e2e) POST', () => {
     });
   });
 
-  it('Should get Error while field "login" is too short', async () => {
+  it('Should getById Error while field "login" is too short', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(
@@ -255,7 +255,7 @@ describe('Users (e2e) POST', () => {
     expect(response.body).toEqual(data.errorDataSet1);
   });
 
-  it('Should get Error while field "password" is too long', async () => {
+  it('Should getById Error while field "password" is too long', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(
@@ -270,7 +270,7 @@ describe('Users (e2e) POST', () => {
     expect(response.body).toEqual(data.errorDataSet2);
   });
 
-  it('Should get Error while field "password" is too long', async () => {
+  it('Should getById Error while field "password" is too long', async () => {
     const response = await request(app.getHttpServer())
       .post(`${APP_PREFIX}/users`)
       .set(
@@ -287,7 +287,7 @@ describe('Users (e2e) POST', () => {
 });
 
 describe('Users (e2e) DELETE', () => {
-  it('Should delete user', async () => {
+  it('Should deletePost user', async () => {
     const userList = await mockUserModel.insertMany(
       testSeeder.createUserListDto(2),
     );

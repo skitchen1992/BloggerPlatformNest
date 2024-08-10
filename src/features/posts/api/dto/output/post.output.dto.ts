@@ -1,10 +1,5 @@
 import { PostDocument } from '../../../domain/post.entity';
-
-export enum LikeStatus {
-  LIKE = 'Like',
-  DISLIKE = 'Dislike',
-  NONE = 'None',
-}
+import { LikeStatusEnum } from '@features/likes/domain/likes.entity';
 
 export type NewestLike = {
   addedAt: string;
@@ -15,7 +10,7 @@ export type NewestLike = {
 export type ExtendedLikesInfo = {
   likesCount: number;
   dislikesCount: number;
-  myStatus: LikeStatus;
+  myStatus: LikeStatusEnum;
   newestLikes: NewestLike[];
 };
 export class PostOutputDto {
@@ -31,7 +26,10 @@ export class PostOutputDto {
 
 // MAPPERS
 
-export const PostOutputDtoMapper = (post: PostDocument): PostOutputDto => {
+export const PostOutputDtoMapper = (
+  post: PostDocument,
+  extendedLikesInfo: ExtendedLikesInfo,
+): PostOutputDto => {
   const outputDto = new PostOutputDto();
 
   outputDto.id = post._id.toString();
@@ -40,13 +38,8 @@ export const PostOutputDtoMapper = (post: PostDocument): PostOutputDto => {
   outputDto.content = post.content;
   outputDto.blogId = post.blogId;
   outputDto.blogName = post.blogName;
-  outputDto.createdAt = post.createdAt.toISOString();
-  outputDto.extendedLikesInfo = {
-    likesCount: 0,
-    dislikesCount: 0,
-    myStatus: LikeStatus.NONE,
-    newestLikes: [],
-  };
+  outputDto.createdAt = post.createdAt;
+  outputDto.extendedLikesInfo = extendedLikesInfo;
 
   return outputDto;
 };

@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { User } from '@features/users/domain/user.entity';
 import { UsersService } from '@features/users/application/users.service';
+import { getCurrentDate } from '@utils/dates';
 
 export class CreateUserCommand {
   constructor(
@@ -28,7 +29,7 @@ export class CreateUserHandler
       login,
       password: passwordHash,
       email,
-      createdAt: new Date(),
+      createdAt: getCurrentDate(),
     };
 
     return await this.usersRepository.create(newUser);

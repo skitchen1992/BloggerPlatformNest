@@ -40,6 +40,9 @@ export class AuthService {
   public async getAccessToken(userId: string | null) {
     return await this.jwtService.signAsync({ userId: userId });
   }
+  public async getRefreshToken(userId: string, deviceId: string) {
+    return await this.jwtService.signAsync({ userId, deviceId });
+  }
 
   public async sendRegisterEmail(to: string, confirmationCode: string) {
     const link = `https://blogger-platform-bay.vercel.app/api/auth/registration-confirmation?code=${confirmationCode}`;

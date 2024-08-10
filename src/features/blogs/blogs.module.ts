@@ -14,6 +14,7 @@ import { BlogsController } from '@features/blogs/api/blogs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from '@features/blogs/domain/blog.entity';
 import { PostsModule } from '@features/posts/posts.module';
+import { UsersModule } from '@features/users/users.module';
 
 const blogsProviders: Provider[] = [
   BlogsRepository,
@@ -33,6 +34,7 @@ const blogsProviders: Provider[] = [
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     SharedModule,
     forwardRef(() => PostsModule),
+    forwardRef(() => UsersModule),
   ],
   providers: [...blogsProviders],
   controllers: [BlogsController],

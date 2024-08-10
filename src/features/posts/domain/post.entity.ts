@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
+import { getCurrentDate } from '@utils/dates';
 
 @Schema()
 export class Post {
@@ -18,8 +19,8 @@ export class Post {
   @Prop({ type: String, require: true })
   blogName: string;
 
-  @Prop({ type: Date, default: new Date() })
-  createdAt: Date;
+  @Prop({ type: String, default: getCurrentDate() })
+  createdAt: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

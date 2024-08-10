@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { add } from '@utils/dates';
+import { add, getCurrentDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 
 export const testSeeder = {
@@ -17,10 +17,10 @@ export const testSeeder = {
         login: `test${index}`,
         email: `test${index}@gmail.com`,
         password: `123456789${index}`,
-        createdAt: new Date(),
+        createdAt: getCurrentDate(),
         emailConfirmation: {
           confirmationCode: getUniqueId(),
-          expirationDate: add(new Date(), { hours: 1 }),
+          expirationDate: add(getCurrentDate(), { hours: 1 }),
           isConfirmed: true,
         },
         _id: new ObjectId(),

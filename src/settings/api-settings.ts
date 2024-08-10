@@ -26,6 +26,9 @@ export class APISettings {
   @IsString()
   public readonly ACCESS_TOKEN_EXPIRED_IN: string =
     this.envVariables.ACCESS_TOKEN_EXPIRED_IN;
+  @IsString()
+  public readonly REFRESH_TOKEN_EXPIRED_IN: string =
+    this.envVariables.REFRESH_TOKEN_EXPIRED_IN;
 
   //EMAIL
   @IsEmail()

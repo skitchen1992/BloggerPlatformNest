@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
+import { getCurrentDate } from '@utils/dates';
 
 export interface ICommentatorInfo {
   userId: string;
@@ -22,8 +23,8 @@ export class Comment {
   @Prop({ type: String, require: true })
   postId: string;
 
-  @Prop({ type: Date, default: new Date() })
-  createdAt: Date;
+  @Prop({ type: String, default: getCurrentDate() })
+  createdAt: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

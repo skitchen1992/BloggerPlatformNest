@@ -1,9 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '@features/comments/infrastructure/comments.repository';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 export class DeleteCommentCommand {
-  constructor(public id: string) {}
+  constructor(
+    public commentId: string,
+    public userId: string,
+  ) {}
 }
 
 @CommandHandler(DeleteCommentCommand)
@@ -12,12 +15,24 @@ export class DeleteCommentHandler
 {
   constructor(private readonly commentsRepository: CommentsRepository) {}
   async execute(command: DeleteCommentCommand): Promise<void> {
-    const { id } = command;
+    const { commentId, userId } = command;
 
-    const isDeleted: boolean = await this.commentsRepository.delete(id);
+    const comment = await this.commentsRepository.get(commentId);
+
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
+
+    if (userId !== comment.commentatorInfo.userId.toString()) {
+      throw new ForbiddenException(
+        'You do not have permission to perform this action.',
+      );
+    }
+
+    const isDeleted: boolean = await this.commentsRepository.delete(commentId);
 
     if (!isDeleted) {
-      throw new NotFoundException(`Comment with id ${id} not found`);
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
     }
   }
 }

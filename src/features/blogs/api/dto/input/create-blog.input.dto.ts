@@ -1,5 +1,5 @@
 import { Trim } from '@infrastructure/decorators/transform/trim';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
 
 export class CreateBlogDto {
   @Trim()
@@ -22,5 +22,6 @@ export class CreateBlogDto {
     message: 'WebsiteUrl must be between 1 and 100 characters',
   })
   @IsNotEmpty({ message: 'WebsiteUrl is required' })
+  @IsUrl()
   websiteUrl: string;
 }

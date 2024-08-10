@@ -26,7 +26,7 @@ import { AuthGuard } from '@nestjs/passport';
 //       const { userId } =
 //         ((await this.jwtService.verifyAsync(token)) as JwtPayload) ?? {};
 //
-//       request.currentUser = await this.usersQueryRepository.getById(userId);
+//       request.currentUser = await this.usersQueryRepository.getPostById(userId);
 //       return true;
 //     } catch {
 //       throw new UnauthorizedException();
