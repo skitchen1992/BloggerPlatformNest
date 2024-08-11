@@ -13,7 +13,7 @@ export class SessionsRepository {
     @InjectModel(Session.name) private sessionModel: SessionModelType,
   ) {}
 
-  public async getByDeviceId(
+  public async getSessionByDeviceId(
     deviceId: string,
   ): Promise<SessionDocument | null> {
     try {
@@ -47,6 +47,16 @@ export class SessionsRepository {
     }
   }
 
+  public async deleteSessionByDeviceId(id: string): Promise<boolean> {
+    try {
+      const deleteResult = await this.sessionModel.deleteOne({ deviceId: id });
+
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async deleteList(): Promise<boolean> {
     try {
       const deleteResult = await this.sessionModel.deleteMany({});
@@ -63,6 +73,22 @@ export class SessionsRepository {
     try {
       const updatedResult = await this.sessionModel.updateOne(
         { _id: id },
+        data,
+      );
+
+      return updatedResult.matchedCount > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  public async updateByDeviceId(
+    deviceId: string,
+    data: UpdateQuery<Session>,
+  ): Promise<boolean> {
+    try {
+      const updatedResult = await this.sessionModel.updateOne(
+        { deviceId: deviceId },
         data,
       );
 

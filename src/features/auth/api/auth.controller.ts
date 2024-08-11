@@ -30,10 +30,13 @@ import { GetMeQuery } from '@features/auth/application/handlers/get-me.handler';
 import { MeOutputDto } from '@features/auth/api/dto/output/me.output.dto';
 import { RefreshTokenOutputDto } from '@features/auth/api/dto/output/refresh-token.output.dto';
 import { RefreshTokenCommand } from '@features/auth/application/handlers/refresh-token.handler';
+import { LogoutCommand } from '@features/auth/application/handlers/logout.handler';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -48,12 +51,13 @@ export class AuthController {
     @Req() req: Request,
   ) {
     const { loginOrEmail, password } = input;
-
+    console.log('login');
     return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
       new LoginCommand(loginOrEmail, password, res, req),
     );
   }
 
+  @SkipThrottle()
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(
@@ -66,6 +70,7 @@ export class AuthController {
     >(new RefreshTokenCommand(res, req));
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(@Body() input: PasswordRecoveryDto) {
@@ -76,6 +81,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(@Body() input: NewPasswordDto) {
@@ -86,6 +92,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationConfirmation(@Body() input: RegistrationConfirmationDto) {
@@ -96,6 +103,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() input: RegistrationUserDto) {
@@ -106,6 +114,7 @@ export class AuthController {
     );
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationEmailResending(
@@ -126,6 +135,15 @@ export class AuthController {
 
     return await this.queryBus.execute<GetMeQuery, MeOutputDto>(
       new GetMeQuery(user!),
+    );
+  }
+  @SkipThrottle()
+  @ApiSecurity('refreshToken')
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Req() request: Request) {
+    await this.commandBus.execute<LogoutCommand, void>(
+      new LogoutCommand(request),
     );
   }
 }

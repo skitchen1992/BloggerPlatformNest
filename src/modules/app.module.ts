@@ -17,6 +17,9 @@ import { PostsModule } from '@features/posts/posts.module';
 import { CommentsModule } from '@features/comments/comments.module';
 import { TestingModule } from '@features/testing/testing.module';
 import { LikesModule } from '@features/likes/likes.module';
+import { SessionModule } from '@features/session/session.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   // Регистрация модулей
@@ -30,6 +33,19 @@ import { LikesModule } from '@features/likes/likes.module';
       ignoreEnvFile:
         process.env.ENV !== EnvironmentsEnum.DEVELOPMENT &&
         process.env.ENV !== EnvironmentsEnum.TESTING,
+    }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings = configService.get('apiSettings', { infer: true });
+
+        return [
+          {
+            ttl: 10,
+            limit: 4,
+          },
+        ];
+      },
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
@@ -62,10 +78,16 @@ import { LikesModule } from '@features/likes/likes.module';
     CommentsModule,
     LikesModule,
     SharedModule,
+    SessionModule,
     TestingModule,
   ],
   // Регистрация провайдеров
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   // Регистрация контроллеров
   controllers: [],
 })

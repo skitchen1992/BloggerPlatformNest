@@ -35,8 +35,10 @@ import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service'
 import { GetPostQuery } from '@features/posts/application/handlers/get-post.handler';
 import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
 import { Request } from 'express';
+import { SkipThrottle } from '@nestjs/throttler';
 
 // Tag для swagger
+@SkipThrottle()
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {

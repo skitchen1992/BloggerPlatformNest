@@ -7,7 +7,9 @@ import {
 import { Blog, BlogModelType } from '@features/blogs/domain/blog.entity';
 import { Post, PostModelType } from '@features/posts/domain/post.entity';
 import { User, UserModelType } from '@features/users/domain/user.entity';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('testing')
 export class TestingController {
   constructor(

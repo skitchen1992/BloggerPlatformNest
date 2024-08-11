@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HashBuilder } from '@utils/hash-builder';
 import { NodeMailer } from '@infrastructure/servises/nodemailer/nodemailer.service';
 import { JwtPayload } from 'jsonwebtoken';
@@ -34,6 +38,17 @@ export class SharedService {
     }
   }
 
+  public verifyRefreshToken(refreshToken: string) {
+    try {
+      const { userId, exp, deviceId } =
+        (this.jwtService.verify(refreshToken) as JwtPayload) ?? {};
+
+      return { userId, exp, deviceId };
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
   async generatePasswordHash(password: string): Promise<string> {
     return await this.hashBuilder.hash(password);
   }
@@ -50,9 +65,17 @@ export class SharedService {
   }
 
   getTokenExpirationDate(token: string): string {
-    const payload = this.jwtService.verify(token) as Record<string, any>;
+    try {
+      const { exp } = (this.jwtService.verify(token) as JwtPayload) ?? {};
 
-    return new Date(payload.exp * 1000).toISOString(); // конвертируем секунды в миллисекунды
+      if (!exp) {
+        return '';
+      }
+
+      return new Date(exp * 1000).toISOString(); // конвертируем секунды в миллисекунды
+    } catch (e) {
+      return '';
+    }
   }
 
   public async sendRegisterEmail(to: string, confirmationCode: string) {

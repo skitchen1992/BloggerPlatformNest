@@ -43,8 +43,9 @@ import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { BasicAuthGuard } from '@infrastructure/guards/basic-auth-guard.service';
 import { CreateCommentCommand } from '@features/comments/application/handlers/create-comment.handler';
 import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
+import { SkipThrottle } from '@nestjs/throttler';
 
-// Tag для swagger
+@SkipThrottle()
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {

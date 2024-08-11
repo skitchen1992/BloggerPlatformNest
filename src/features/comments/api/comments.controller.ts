@@ -25,8 +25,9 @@ import { ParentTypeEnum } from '@features/likes/domain/likes.entity';
 import { IsCommentExistCommand } from '@features/comments/application/handlers/is-comment-exist.handler';
 import { CommentDocument } from '@features/comments/domain/comment.entity';
 import { BearerTokenInterceptorGuard } from '@infrastructure/guards/bearer-token-interceptor-guard.service';
+import { SkipThrottle } from '@nestjs/throttler';
 
-// Tag для swagger
+@SkipThrottle()
 @ApiTags('Comments')
 @Controller('comments')
 export class CommentsController {

@@ -15,12 +15,10 @@ import {
   Session,
   SessionSchema,
 } from '@features/session/domain/session.entity';
-import { SessionsRepository } from '@features/session/infrastructure/sessions.repository';
-import { SessionsQueryRepository } from '@features/session/infrastructure/sessions.query-repository';
+import { SessionModule } from '@features/session/session.module';
+import { LogoutHandler } from '@features/auth/application/handlers/logout.handler';
 
 const authProviders: Provider[] = [
-  SessionsRepository,
-  SessionsQueryRepository,
   LoginHandler,
   RegistrationConfirmationHandler,
   RegistrationHandler,
@@ -29,6 +27,7 @@ const authProviders: Provider[] = [
   NewPassportHandler,
   GetMeHandler,
   RefreshTokenHandler,
+  LogoutHandler,
 ];
 
 @Module({
@@ -36,6 +35,7 @@ const authProviders: Provider[] = [
     MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     SharedModule,
     forwardRef(() => UsersModule),
+    forwardRef(() => SessionModule),
   ],
   providers: [...authProviders],
   controllers: [AuthController],

@@ -3,8 +3,6 @@ import { UnauthorizedException } from '@nestjs/common';
 import { CookieService } from '@infrastructure/servises/cookie/cookie.service';
 import { COOKIE_KEY } from '@utils/consts';
 import { Request, Response } from 'express';
-import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from 'jsonwebtoken';
 import { SessionsRepository } from '@features/session/infrastructure/sessions.repository';
 import { fromUnixTimeToISO, getCurrentISOStringDate } from '@utils/dates';
 import { SharedService } from '@infrastructure/servises/shared/shared.service';
@@ -27,7 +25,6 @@ export class RefreshTokenHandler
     private readonly sessionsRepository: SessionsRepository,
     private readonly sharedService: SharedService,
     private readonly cookieService: CookieService,
-    protected readonly jwtService: JwtService,
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
 
@@ -44,13 +41,13 @@ export class RefreshTokenHandler
     }
 
     const { userId, deviceId, exp } =
-      (this.jwtService.verify(refreshToken) as JwtPayload) ?? {};
+      this.sharedService.verifyRefreshToken(refreshToken);
 
     if (!userId || !deviceId || !exp) {
       throw new UnauthorizedException();
     }
 
-    const device = await this.sessionsRepository.getByDeviceId(deviceId);
+    const device = await this.sessionsRepository.getSessionByDeviceId(deviceId);
 
     if (!device?.tokenExpirationDate) {
       throw new UnauthorizedException();
@@ -70,13 +67,17 @@ export class RefreshTokenHandler
       { expiresIn: apiSettings.REFRESH_TOKEN_EXPIRED_IN },
     );
 
-    await this.sessionsRepository.update(deviceId, {
+    await this.sessionsRepository.updateByDeviceId(deviceId, {
       tokenExpirationDate:
         this.sharedService.getTokenExpirationDate(newRefreshToken),
       lastActiveDate: getCurrentISOStringDate(),
     });
 
-    this.cookieService.setCookie(res, COOKIE_KEY.REFRESH_TOKEN, refreshToken);
+    this.cookieService.setCookie(
+      res,
+      COOKIE_KEY.REFRESH_TOKEN,
+      newRefreshToken,
+    );
 
     return { accessToken: newAccessToken };
   }

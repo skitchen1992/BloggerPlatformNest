@@ -21,8 +21,9 @@ import { CommentOutputDto } from '@features/comments/api/dto/output/comment.outp
 import { GetAllUsersQuery } from '@features/users/application/handlers/get-all-users.handler';
 import { GetUserQuery } from '@features/users/application/handlers/get-user.handler';
 import { UserOutputDto } from '@features/users/api/dto/output/user.output.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
-// Tag для swagger
+@SkipThrottle()
 @ApiTags('Users')
 @Controller('users')
 @ApiSecurity('basic')

@@ -33,6 +33,8 @@ export const applyAppSettings = (app: INestApplication) => {
   // Применить middleware глобально
   app.use(LoggerMiddlewareFunc);
 
+  setAppProxy(app);
+
   // Установка префикса
   setAppPrefix(app);
 
@@ -44,6 +46,12 @@ export const applyAppSettings = (app: INestApplication) => {
 
   // Применение глобальных exceptions filters
   setAppExceptionsFilters(app);
+};
+
+const setAppProxy = (app: INestApplication) => {
+  const expressApp = app.getHttpAdapter().getInstance();
+
+  expressApp.set('trust proxy', true);
 };
 
 const setAppPrefix = (app: INestApplication) => {
