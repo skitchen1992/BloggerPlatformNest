@@ -24,7 +24,7 @@ export class GetAllDevicesHandler
     protected readonly sharedService: SharedService,
   ) {}
   async execute(command: GetAllDevicesQuery): Promise<AllDevicesOutputDto[]> {
-    const { req, res } = command;
+    const { req } = command;
 
     const refreshToken = this.cookieService.getCookie(
       req,

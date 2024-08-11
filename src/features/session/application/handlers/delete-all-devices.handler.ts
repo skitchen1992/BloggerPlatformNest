@@ -24,7 +24,7 @@ export class DeleteAllDevicesHandler
     protected readonly sharedService: SharedService,
   ) {}
   async execute(command: DeleteAllDevicesCommand): Promise<void> {
-    const { req, res } = command;
+    const { req } = command;
 
     const refreshToken = this.cookieService.getCookie(
       req,
@@ -34,8 +34,7 @@ export class DeleteAllDevicesHandler
       throw new UnauthorizedException();
     }
 
-    const { deviceId, exp } =
-      this.sharedService.verifyRefreshToken(refreshToken);
+    const { deviceId } = this.sharedService.verifyRefreshToken(refreshToken);
 
     if (!deviceId) {
       throw new UnauthorizedException();

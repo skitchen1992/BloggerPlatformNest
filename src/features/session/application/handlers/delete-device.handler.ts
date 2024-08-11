@@ -7,7 +7,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { SessionsRepository } from '@features/session/infrastructure/sessions.repository';
 import { SharedService } from '@infrastructure/servises/shared/shared.service';
 
@@ -29,7 +28,7 @@ export class DeleteDeviceHandler
     protected readonly sharedService: SharedService,
   ) {}
   async execute(command: DeleteDeviceCommand): Promise<void> {
-    const { req, res, deviceId } = command;
+    const { req, deviceId } = command;
 
     if (!deviceId) {
       throw new NotFoundException(`Device with id ${deviceId} not found`);
@@ -44,7 +43,7 @@ export class DeleteDeviceHandler
       throw new UnauthorizedException();
     }
 
-    const { userId, exp } = this.sharedService.verifyRefreshToken(refreshToken);
+    const { userId } = this.sharedService.verifyRefreshToken(refreshToken);
 
     if (!userId) {
       throw new UnauthorizedException();
