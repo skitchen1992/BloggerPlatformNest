@@ -35,4 +35,10 @@ export class APISettings {
   public readonly EMAIL_USER: string = this.envVariables.EMAIL_USER;
   @IsString()
   public readonly EMAIL_PASS: string = this.envVariables.EMAIL_PASS;
+
+  //THROTTLER
+  @IsString()
+  public readonly THROTTLER_TTL: string = this.envVariables.THROTTLER_TTL;
+  @IsString()
+  public readonly THROTTLER_LIMIT: string = this.envVariables.THROTTLER_LIMIT;
 }

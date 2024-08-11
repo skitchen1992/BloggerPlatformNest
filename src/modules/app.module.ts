@@ -18,8 +18,7 @@ import { CommentsModule } from '@features/comments/comments.module';
 import { TestingModule } from '@features/testing/testing.module';
 import { LikesModule } from '@features/likes/likes.module';
 import { SessionModule } from '@features/session/session.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   // Регистрация модулей
@@ -41,8 +40,8 @@ import { APP_GUARD } from '@nestjs/core';
 
         return [
           {
-            ttl: 10,
-            limit: 4,
+            ttl: Number(apiSettings.THROTTLER_TTL),
+            limit: Number(apiSettings.THROTTLER_LIMIT),
           },
         ];
       },
@@ -82,12 +81,7 @@ import { APP_GUARD } from '@nestjs/core';
     TestingModule,
   ],
   // Регистрация провайдеров
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [],
   // Регистрация контроллеров
   controllers: [],
 })

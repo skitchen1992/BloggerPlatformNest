@@ -83,11 +83,6 @@ export class LoginHandler
     await this.sessionsRepository.create(newSession);
 
     this.cookieService.setCookie(res, COOKIE_KEY.REFRESH_TOKEN, refreshToken);
-    // this.cookieService.setCookie(
-    //   res,
-    //   COOKIE_KEY.REFRESH_TOKEN,
-    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmI4NmY5NzE2MmZjNTc4MGI0MzczYWIiLCJkZXZpY2VJZCI6IjAzMjhkOWJmLTQyNmQtNDNjYS1hYjhiLWY5NzU0NmI3Y2VjYSIsImlhdCI6MTcyMzM2MzI0NiwiZXhwIjoxNzIzMzYzMjY2fQ.moQP216zLM_cKJHZBUaSwhfOazseBQ6-MRQyVtdV5Ds',
-    // );
 
     return LoginOutputDtoMapper(
       await this.sharedService.getAccessToken(userId),
