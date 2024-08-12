@@ -6,7 +6,7 @@ export class NewPasswordDto {
   @IsPasswordDecorator()
   newPassword: string;
 
-  @Trim()
   @IsString({ message: 'RecoveryCode must be a string' })
+  @Trim()
   recoveryCode: string;
 }

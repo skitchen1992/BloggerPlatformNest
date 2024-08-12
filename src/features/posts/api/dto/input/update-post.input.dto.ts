@@ -3,32 +3,32 @@ import { IsMongoId, IsNotEmpty, IsString, Length } from 'class-validator';
 import { IsBlogExist } from '@infrastructure/decorators/validate/is-blog-exist.decorator';
 
 export class UpdatePostDto {
-  @Trim()
-  @IsString({ message: 'Title must be a string' })
-  @Length(1, 30, { message: 'Title must be between 1 and 30 characters' })
   @IsNotEmpty({ message: 'Title is required' })
+  @IsString({ message: 'Title must be a string' })
+  @Trim()
+  @Length(1, 30, { message: 'Title must be between 1 and 30 characters' })
   title: string;
 
-  @Trim()
+  @IsNotEmpty({ message: 'ShortDescription is required' })
   @IsString({ message: 'Description must be a string' })
+  @Trim()
   @Length(1, 100, {
     message: 'ShortDescription must be between 1 and 100 characters',
   })
-  @IsNotEmpty({ message: 'ShortDescription is required' })
   shortDescription: string;
 
-  @Trim()
+  @IsNotEmpty({ message: 'Content is required' })
   @IsString({ message: 'Content must be a string' })
+  @Trim()
   @Length(1, 1000, {
     message: 'Content must be between 1 and 1000 characters',
   })
-  @IsNotEmpty({ message: 'Content is required' })
   content: string;
 
-  @IsMongoId()
-  @Trim()
-  @IsString({ message: 'BlogId must be a string' })
   @IsNotEmpty({ message: 'BlogId is required' })
+  @IsMongoId()
+  @IsString({ message: 'BlogId must be a string' })
+  @Trim()
   @IsBlogExist()
   blogId: string;
 }

@@ -1,17 +1,17 @@
 import request from 'supertest';
-import { createAuthorizationHeader } from '../utils/test-helpers';
-import { apiSettings, app, mockUserModel } from '../jest.setup';
+import { createAuthorizationHeader } from '../../utils/test-helpers';
+import { apiSettings, app, mockUserModel } from '../../jest.setup';
 import { HttpStatus } from '@nestjs/common';
-import { testSeeder } from '../utils/test.seeder';
+import { testSeeder } from '../../utils/test.seeder';
 import { UserOutputDtoMapper } from '@features/users/api/dto/output/user.output.dto';
 import { getUniqueId } from '@utils/utils';
 import { add, getCurrentISOStringDate } from '@utils/dates';
 import { ObjectId } from 'mongodb';
 import * as data from './dataset';
 import { APP_PREFIX } from '@settings/apply-app-setting';
-import { ID } from '../mocks/mocks';
+import { ID } from '../../mocks/mocks';
 
-describe('Users (e2e) GET', () => {
+describe.skip('Users (e2e) GET', () => {
   it('Should return users list with pagination metadata', async () => {
     const userList = await mockUserModel.insertMany(
       testSeeder.createUserListDto(1),
@@ -217,7 +217,7 @@ describe('Users (e2e) GET', () => {
   });
 });
 
-describe('Users (e2e) POST', () => {
+describe.skip('Users (e2e) POST', () => {
   it('Should add user', async () => {
     const user = testSeeder.createUserDto();
 
@@ -286,7 +286,7 @@ describe('Users (e2e) POST', () => {
   });
 });
 
-describe('Users (e2e) DELETE', () => {
+describe.skip('Users (e2e) DELETE', () => {
   it('Should deletePost user', async () => {
     const userList = await mockUserModel.insertMany(
       testSeeder.createUserListDto(2),

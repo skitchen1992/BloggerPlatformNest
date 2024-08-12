@@ -31,7 +31,7 @@ export const applyAppSettings = (app: INestApplication) => {
   //  app.useGlobalGuards(new BasicAuthGuard());
 
   // Применить middleware глобально
-  app.use(LoggerMiddlewareFunc);
+  // app.use(LoggerMiddlewareFunc);
 
   setAppProxy(app);
 

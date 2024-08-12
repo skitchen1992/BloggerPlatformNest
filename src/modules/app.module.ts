@@ -37,6 +37,15 @@ import { ThrottlerModule } from '@nestjs/throttler';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
         const apiSettings = configService.get('apiSettings', { infer: true });
+        if (process.env.NODE_ENV === 'test') {
+          // Отключение троттлинга в тестовой среде
+          return [
+            {
+              ttl: 0,
+              limit: 0,
+            },
+          ];
+        }
 
         return [
           {
