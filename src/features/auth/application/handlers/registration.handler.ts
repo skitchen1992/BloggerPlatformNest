@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { AuthService } from '@features/auth/application/auth.service';
-import { add, getCurrentDate } from '@utils/dates';
+import { add, getCurrentISOStringDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
 import { User } from '@features/users/domain/user.entity';
+import { SharedService } from '@infrastructure/servises/shared/shared.service';
 
 export class RegistrationCommand {
   constructor(
@@ -20,7 +20,7 @@ export class RegistrationHandler
 {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
   ) {}
   async execute(command: RegistrationCommand): Promise<void> {
     const { login, password, email } = command;
@@ -36,7 +36,9 @@ export class RegistrationHandler
       });
     }
 
-    const passwordHash = await this.authService.generatePasswordHash(password);
+    const passwordHash = await this.sharedService.generatePasswordHash(
+      password,
+    );
 
     const confirmationCode = getUniqueId();
 
@@ -44,16 +46,16 @@ export class RegistrationHandler
       login,
       password: passwordHash,
       email,
-      createdAt: getCurrentDate(),
+      createdAt: getCurrentISOStringDate(),
       emailConfirmation: {
         isConfirmed: false,
         confirmationCode,
-        expirationDate: add(getCurrentDate(), { hours: 1 }),
+        expirationDate: add(getCurrentISOStringDate(), { hours: 1 }),
       },
     };
 
     await this.usersRepository.create(newUser);
 
-    await this.authService.sendRegisterEmail(email, confirmationCode);
+    await this.sharedService.sendRegisterEmail(email, confirmationCode);
   }
 }

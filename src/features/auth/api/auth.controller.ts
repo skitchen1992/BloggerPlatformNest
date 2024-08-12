@@ -28,10 +28,15 @@ import { RegistrationCommand } from '@features/auth/application/handlers/registr
 import { RegistrationEmailResendingCommand } from '@features/auth/application/handlers/registration-email-resending.handler';
 import { GetMeQuery } from '@features/auth/application/handlers/get-me.handler';
 import { MeOutputDto } from '@features/auth/api/dto/output/me.output.dto';
+import { RefreshTokenOutputDto } from '@features/auth/api/dto/output/refresh-token.output.dto';
+import { RefreshTokenCommand } from '@features/auth/application/handlers/refresh-token.handler';
+import { LogoutCommand } from '@features/auth/application/handlers/logout.handler';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
 // Tag для swagger
 @ApiTags('Auth')
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -43,12 +48,26 @@ export class AuthController {
   async login(
     @Body() input: LoginDto,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ) {
     const { loginOrEmail, password } = input;
 
     return await this.commandBus.execute<LoginCommand, LoginOutputDto>(
-      new LoginCommand(loginOrEmail, password, res),
+      new LoginCommand(loginOrEmail, password, res, req),
     );
+  }
+
+  @SkipThrottle()
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+  ) {
+    return await this.commandBus.execute<
+      RefreshTokenCommand,
+      RefreshTokenOutputDto
+    >(new RefreshTokenCommand(res, req));
   }
 
   @Post('password-recovery')
@@ -111,6 +130,15 @@ export class AuthController {
 
     return await this.queryBus.execute<GetMeQuery, MeOutputDto>(
       new GetMeQuery(user!),
+    );
+  }
+  @SkipThrottle()
+  @ApiSecurity('refreshToken')
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Req() request: Request) {
+    await this.commandBus.execute<LogoutCommand, void>(
+      new LogoutCommand(request),
     );
   }
 }

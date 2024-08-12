@@ -1,12 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Session, SessionModelType } from '../domain/session.entity';
+import {
+  Session,
+  SessionDocument,
+  SessionModelType,
+} from '../domain/session.entity';
+import { UpdateQuery } from 'mongoose';
 
 @Injectable()
 export class SessionsRepository {
   constructor(
     @InjectModel(Session.name) private sessionModel: SessionModelType,
   ) {}
+
+  public async getSessionByDeviceId(
+    deviceId: string,
+  ): Promise<SessionDocument | null> {
+    try {
+      const devise = await this.sessionModel
+        .findOne({ deviceId: deviceId })
+        .lean();
+
+      if (!devise) {
+        return null;
+      }
+
+      return devise;
+    } catch (e) {
+      return null;
+    }
+  }
 
   public async create(newSession: Session): Promise<string> {
     const insertResult = await this.sessionModel.insertMany([newSession]);
@@ -15,14 +38,63 @@ export class SessionsRepository {
   }
 
   public async delete(id: string): Promise<boolean> {
-    const deleteResult = await this.sessionModel.deleteOne({ _id: id });
+    try {
+      const deleteResult = await this.sessionModel.deleteOne({ _id: id });
 
-    return deleteResult.deletedCount === 1;
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
   }
 
-  public async update(id: string, data: Session): Promise<boolean> {
-    const updatedResult = await this.sessionModel.updateOne({ _id: id }, data);
+  public async deleteSessionByDeviceId(id: string): Promise<boolean> {
+    try {
+      const deleteResult = await this.sessionModel.deleteOne({ deviceId: id });
 
-    return updatedResult.matchedCount > 0;
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async deleteList(): Promise<boolean> {
+    try {
+      const deleteResult = await this.sessionModel.deleteMany({});
+      return deleteResult.deletedCount === 1;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  public async update(
+    id: string,
+    data: UpdateQuery<Session>,
+  ): Promise<boolean> {
+    try {
+      const updatedResult = await this.sessionModel.updateOne(
+        { _id: id },
+        data,
+      );
+
+      return updatedResult.matchedCount > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  public async updateByDeviceId(
+    deviceId: string,
+    data: UpdateQuery<Session>,
+  ): Promise<boolean> {
+    try {
+      const updatedResult = await this.sessionModel.updateOne(
+        { deviceId: deviceId },
+        data,
+      );
+
+      return updatedResult.matchedCount > 0;
+    } catch (e) {
+      return false;
+    }
   }
 }

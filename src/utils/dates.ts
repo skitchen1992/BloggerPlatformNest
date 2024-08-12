@@ -15,7 +15,7 @@ export function subtractSeconds(date: Date | number | string, amount: number) {
   return subSeconds(date, amount).toISOString();
 }
 
-export function getCurrentDate() {
+export function getCurrentISOStringDate() {
   return new Date().toISOString();
 }
 

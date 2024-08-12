@@ -1,6 +1,5 @@
 import { forwardRef, Module, Provider } from '@nestjs/common';
 import { SharedModule } from '../../modules/shared.module';
-import { AuthService } from '@features/auth/application/auth.service';
 import { LoginHandler } from '@features/auth/application/handlers/login.handler';
 import { RegistrationConfirmationHandler } from '@features/auth/application/handlers/registration-confirmation.handler';
 import { RegistrationHandler } from '@features/auth/application/handlers/registration.handler';
@@ -10,9 +9,16 @@ import { NewPassportHandler } from '@features/auth/application/handlers/new-pass
 import { GetMeHandler } from '@features/auth/application/handlers/get-me.handler';
 import { AuthController } from '@features/auth/api/auth.controller';
 import { UsersModule } from '@features/users/users.module';
+import { RefreshTokenHandler } from '@features/auth/application/handlers/refresh-token.handler';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  Session,
+  SessionSchema,
+} from '@features/session/domain/session.entity';
+import { SessionModule } from '@features/session/session.module';
+import { LogoutHandler } from '@features/auth/application/handlers/logout.handler';
 
 const authProviders: Provider[] = [
-  AuthService,
   LoginHandler,
   RegistrationConfirmationHandler,
   RegistrationHandler,
@@ -20,10 +26,17 @@ const authProviders: Provider[] = [
   PasswordRecoveryHandler,
   NewPassportHandler,
   GetMeHandler,
+  RefreshTokenHandler,
+  LogoutHandler,
 ];
 
 @Module({
-  imports: [SharedModule, forwardRef(() => UsersModule)],
+  imports: [
+    MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
+    SharedModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => SessionModule),
+  ],
   providers: [...authProviders],
   controllers: [AuthController],
 })

@@ -3,7 +3,7 @@ import { Post } from '@features/posts/domain/post.entity';
 import { PostsRepository } from '@features/posts/infrastructure/posts.repository';
 import { NotFoundException } from '@nestjs/common';
 import { BlogsRepository } from '@features/blogs/infrastructure/blogs.repository';
-import { getCurrentDate } from '@utils/dates';
+import { getCurrentISOStringDate } from '@utils/dates';
 
 export class CreatePostForBlogCommand {
   constructor(
@@ -37,7 +37,7 @@ export class CreatePostForBlogHandler
       content,
       blogId,
       blogName: blog.name,
-      createdAt: getCurrentDate(),
+      createdAt: getCurrentISOStringDate(),
     };
 
     return await this.postsRepository.create(newPost);

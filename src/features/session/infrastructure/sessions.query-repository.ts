@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Session, SessionModelType } from '../domain/session.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { getCurrentISOStringDate } from '@utils/dates';
+import { AllDevicesOutputDtoMapper } from '@features/session/api/dto/output/allDevices.output.dto';
 
 @Injectable()
 export class SessionsQueryRepository {
@@ -8,13 +10,14 @@ export class SessionsQueryRepository {
     @InjectModel(Session.name) private sessionModel: SessionModelType,
   ) {}
 
-  async deleteSessionByDeviceId(id: string): Promise<boolean> {
-    const deleteResult = await this.sessionModel.deleteOne({ deviceId: id });
-    return deleteResult.deletedCount === 1;
-  }
+  async getDeviceListByUserId(userId: string) {
+    const filters = {
+      userId,
+      tokenExpirationDate: { $gt: getCurrentISOStringDate() },
+    };
 
-  async deleteSessionList(): Promise<boolean> {
-    const deleteResult = await this.sessionModel.deleteMany({});
-    return deleteResult.deletedCount === 1;
+    const sessionList = await this.sessionModel.find(filters).lean();
+
+    return sessionList.map((session) => AllDevicesOutputDtoMapper(session));
   }
 }

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
-import { AuthService } from '@features/auth/application/auth.service';
 import { RecoveryCodeDtoMapper } from '@features/auth/api/dto/recovery-code.dto';
+import { SharedService } from '@infrastructure/servises/shared/shared.service';
 
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}
@@ -13,7 +13,7 @@ export class PasswordRecoveryHandler
 {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<void> {
     const { email } = command;
@@ -24,20 +24,23 @@ export class PasswordRecoveryHandler
     );
 
     if (!user) {
-      const recoveryAccessToken = await this.authService.getAccessToken(null);
-      await this.authService.sendRecoveryPassEmail(email, recoveryAccessToken);
+      const recoveryAccessToken = await this.sharedService.getAccessToken(null);
+      await this.sharedService.sendRecoveryPassEmail(
+        email,
+        recoveryAccessToken,
+      );
       return;
     }
 
     const userId = user._id.toString();
 
-    const recoveryAccessToken = await this.authService.getAccessToken(userId);
+    const recoveryAccessToken = await this.sharedService.getAccessToken(userId);
 
     await this.usersRepository.update(
       userId,
       RecoveryCodeDtoMapper(recoveryAccessToken),
     );
 
-    await this.authService.sendRecoveryPassEmail(email, recoveryAccessToken);
+    await this.sharedService.sendRecoveryPassEmail(email, recoveryAccessToken);
   }
 }

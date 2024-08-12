@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { AuthService } from '@features/auth/application/auth.service';
-import { getCurrentDate, isExpiredDate } from '@utils/dates';
+import { getCurrentISOStringDate, isExpiredDate } from '@utils/dates';
 import { getUniqueId } from '@utils/utils';
+import { SharedService } from '@infrastructure/servises/shared/shared.service';
 
 export class RegistrationEmailResendingCommand {
   constructor(public email: string) {}
@@ -15,7 +15,7 @@ export class RegistrationEmailResendingHandler
 {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
   ) {}
   async execute(command: RegistrationEmailResendingCommand): Promise<void> {
     const { email } = command;
@@ -43,7 +43,7 @@ export class RegistrationEmailResendingHandler
       user.emailConfirmation?.expirationDate &&
       isExpiredDate({
         expirationDate: user.emailConfirmation.expirationDate.toString(),
-        currentDate: getCurrentDate(),
+        currentDate: getCurrentISOStringDate(),
       })
     ) {
       throw new BadRequestException({
@@ -60,6 +60,6 @@ export class RegistrationEmailResendingHandler
       confirmationCode,
     );
 
-    await this.authService.sendRegisterEmail(email, confirmationCode);
+    await this.sharedService.sendRegisterEmail(email, confirmationCode);
   }
 }

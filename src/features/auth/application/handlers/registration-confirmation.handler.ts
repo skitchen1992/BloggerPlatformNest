@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '@features/users/infrastructure/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { getCurrentDate, isExpiredDate } from '@utils/dates';
+import { getCurrentISOStringDate, isExpiredDate } from '@utils/dates';
 
 export class RegistrationConfirmationCommand {
   constructor(public code: string) {}
@@ -34,7 +34,7 @@ export class RegistrationConfirmationHandler
     if (
       user.emailConfirmation?.expirationDate &&
       isExpiredDate({
-        currentDate: getCurrentDate(),
+        currentDate: getCurrentISOStringDate(),
         expirationDate: user.emailConfirmation.expirationDate.toString(),
       })
     ) {

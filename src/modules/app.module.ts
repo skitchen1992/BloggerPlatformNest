@@ -17,6 +17,8 @@ import { PostsModule } from '@features/posts/posts.module';
 import { CommentsModule } from '@features/comments/comments.module';
 import { TestingModule } from '@features/testing/testing.module';
 import { LikesModule } from '@features/likes/likes.module';
+import { SessionModule } from '@features/session/session.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   // Регистрация модулей
@@ -30,6 +32,28 @@ import { LikesModule } from '@features/likes/likes.module';
       ignoreEnvFile:
         process.env.ENV !== EnvironmentsEnum.DEVELOPMENT &&
         process.env.ENV !== EnvironmentsEnum.TESTING,
+    }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings = configService.get('apiSettings', { infer: true });
+        if (process.env.NODE_ENV === 'test') {
+          // Отключение троттлинга в тестовой среде
+          return [
+            {
+              ttl: 0,
+              limit: 0,
+            },
+          ];
+        }
+
+        return [
+          {
+            ttl: Number(apiSettings.THROTTLER_TTL),
+            limit: Number(apiSettings.THROTTLER_LIMIT),
+          },
+        ];
+      },
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
@@ -62,6 +86,7 @@ import { LikesModule } from '@features/likes/likes.module';
     CommentsModule,
     LikesModule,
     SharedModule,
+    SessionModule,
     TestingModule,
   ],
   // Регистрация провайдеров
