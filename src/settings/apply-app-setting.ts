@@ -33,6 +33,8 @@ export const applyAppSettings = (app: INestApplication) => {
   // Применить middleware глобально
   // app.use(LoggerMiddlewareFunc);
 
+  setEnableCors(app);
+
   setAppProxy(app);
 
   // Установка префикса
@@ -46,6 +48,10 @@ export const applyAppSettings = (app: INestApplication) => {
 
   // Применение глобальных exceptions filters
   setAppExceptionsFilters(app);
+};
+
+const setEnableCors = (app: INestApplication) => {
+  app.enableCors();
 };
 
 const setAppProxy = (app: INestApplication) => {
